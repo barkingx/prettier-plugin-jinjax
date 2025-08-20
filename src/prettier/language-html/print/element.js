@@ -10,12 +10,7 @@ import {
 } from "../../document/builders.js";
 import { replaceEndOfLine } from "../../document/utils.js";
 import getNodeContent from "../get-node-content.js";
-import {
-  forceBreakContent,
-  isScriptLikeTag,
-  isVueCustomBlock,
-  shouldPreserveContent,
-} from "../utils/index.js";
+import { forceBreakContent, shouldPreserveContent } from "../utils/index.js";
 import { printChildren } from "./children.js";
 import {
   needsToBorrowLastChildClosingTagEndMarker,
@@ -29,9 +24,9 @@ import {
 function printElement(path, options, print) {
   const { node } = path;
 
-  if (shouldPreserveContent(node, options)) {
+  if (shouldPreserveContent(node)) {
     return [
-      printOpeningTagPrefix(node, options),
+      printOpeningTagPrefix(node),
       group(printOpeningTag(path, options, print)),
       replaceEndOfLine(getNodeContent(node, options)),
       ...printClosingTag(node, options),
@@ -60,8 +55,7 @@ function printElement(path, options, print) {
    */
   const shouldHugContent =
     node.children.length === 1 &&
-    (node.firstChild.type === "interpolation" ||
-      node.firstChild.type === "angularIcuExpression") &&
+    node.firstChild.type === "interpolation" &&
     node.firstChild.isLeadingSpaceSensitive &&
     !node.firstChild.hasLeadingSpaces &&
     node.lastChild.isTrailingSpaceSensitive &&
@@ -79,14 +73,6 @@ function printElement(path, options, print) {
   const printChildrenDoc = (childrenDoc) => {
     if (shouldHugContent) {
       return indentIfBreak(childrenDoc, { groupId: attrGroupId });
-    }
-    if (
-      (isScriptLikeTag(node, options) || isVueCustomBlock(node, options)) &&
-      node.parent.type === "root" &&
-      options.parser === "vue" &&
-      !options.vueIndentScriptAndStyle
-    ) {
-      return childrenDoc;
     }
     return indent(childrenDoc);
   };

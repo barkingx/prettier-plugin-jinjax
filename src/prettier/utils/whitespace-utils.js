@@ -7,12 +7,11 @@ class WhitespaceUtils {
     this.#whitespaceCharacters = new Set(whitespaceCharacters);
 
     if (
-      process.env.NODE_ENV !== "production" &&
-      (this.#whitespaceCharacters.size === 0 ||
-        Array.prototype.some.call(
-          whitespaceCharacters,
-          (character) => !/^\s$/u.test(character),
-        ))
+      this.#whitespaceCharacters.size === 0 ||
+      Array.prototype.some.call(
+        whitespaceCharacters,
+        (character) => !/^\s$/u.test(character),
+      )
     ) {
       throw new TypeError(
         `Invalid characters: ${JSON.stringify(whitespaceCharacters)}`,
@@ -59,15 +58,6 @@ class WhitespaceUtils {
     const count = this.getTrailingWhitespaceCount(text);
     return text.slice(text.length - count);
   }
-
-  hasLeadingWhitespace(text) {
-    return this.#whitespaceCharacters.has(text.charAt(0));
-  }
-
-  hasTrailingWhitespace(text) {
-    return this.#whitespaceCharacters.has(text.at(-1));
-  }
-
   trimStart(text) {
     const count = this.getLeadingWhitespaceCount(text);
     return text.slice(count);
@@ -96,21 +86,6 @@ class WhitespaceUtils {
   hasWhitespaceCharacter(text) {
     const whitespaceCharacters = this.#whitespaceCharacters;
     return Array.prototype.some.call(text, (character) =>
-      whitespaceCharacters.has(character),
-    );
-  }
-
-  hasNonWhitespaceCharacter(text) {
-    const whitespaceCharacters = this.#whitespaceCharacters;
-    return Array.prototype.some.call(
-      text,
-      (character) => !whitespaceCharacters.has(character),
-    );
-  }
-
-  isWhitespaceOnly(text) {
-    const whitespaceCharacters = this.#whitespaceCharacters;
-    return Array.prototype.every.call(text, (character) =>
       whitespaceCharacters.has(character),
     );
   }

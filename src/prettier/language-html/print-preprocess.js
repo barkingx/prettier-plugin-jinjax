@@ -189,7 +189,7 @@ function extractInterpolation(ast, options) {
 
   const interpolationRegex = /\{\{(.+?)\}\}/su;
   ast.walk((node) => {
-    if (!canHaveInterpolation(node, options)) {
+    if (!canHaveInterpolation(node)) {
       return;
     }
 
@@ -252,7 +252,7 @@ function extractInterpolation(ast, options) {
  * - add `isWhitespaceSensitive`, `isIndentationSensitive` field for text nodes
  * - remove insensitive whitespaces
  */
-function extractWhitespaces(ast, options) {
+function extractWhitespaces(ast) {
   ast.walk((node) => {
     const children = node.$children;
 
@@ -271,7 +271,7 @@ function extractWhitespaces(ast, options) {
       return;
     }
 
-    const isWhitespaceSensitive = isWhitespaceSensitiveNode(node, options);
+    const isWhitespaceSensitive = isWhitespaceSensitiveNode(node);
     const isIndentationSensitive = isIndentationSensitiveNode(node);
 
     if (!isWhitespaceSensitive) {
@@ -368,28 +368,19 @@ function addCssDisplay(ast, options) {
  * - add `isTrailingSpaceSensitive` field
  * - add `isDanglingSpaceSensitive` field for parent nodes
  */
-function addIsSpaceSensitive(ast, options) {
+function addIsSpaceSensitive(ast) {
   ast.walk((node) => {
     const { children } = node;
     if (!children) {
       return;
     }
     if (children.length === 0) {
-      node.isDanglingSpaceSensitive = isDanglingSpaceSensitiveNode(
-        node,
-        options,
-      );
+      node.isDanglingSpaceSensitive = isDanglingSpaceSensitiveNode(node);
       return;
     }
     for (const child of children) {
-      child.isLeadingSpaceSensitive = isLeadingSpaceSensitiveNode(
-        child,
-        options,
-      );
-      child.isTrailingSpaceSensitive = isTrailingSpaceSensitiveNode(
-        child,
-        options,
-      );
+      child.isLeadingSpaceSensitive = isLeadingSpaceSensitiveNode(child);
+      child.isTrailingSpaceSensitive = isTrailingSpaceSensitiveNode(child);
     }
     for (let index = 0; index < children.length; index++) {
       const child = children[index];

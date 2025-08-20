@@ -2,24 +2,16 @@
  * @import {Doc} from "../document/builders.js"
  */
 
-import { fill, group, hardline, indent, line } from "../document/builders.js";
+import { fill, group, hardline } from "../document/builders.js";
 import { replaceEndOfLine } from "../document/utils.js";
 import getPreferredQuote from "../utils/get-preferred-quote.js";
-import htmlWhitespaceUtils from "../utils/html-whitespace-utils.js";
 import UnexpectedNodeError from "../utils/unexpected-node-error.js";
 import clean from "./clean.js";
 import embed from "./embed.js";
 import getVisitorKeys from "./get-visitor-keys.js";
 import { locEnd, locStart } from "./loc.js";
 import { insertPragma } from "./pragma.js";
-import {
-  printAngularControlFlowBlock,
-  printAngularControlFlowBlockParameters,
-} from "./print/angular-control-flow-block.js";
-import {
-  printAngularIcuCase,
-  printAngularIcuExpression,
-} from "./print/angular-icu-expression.js";
+
 import { printChildren } from "./print/children.js";
 import { printElement } from "./print/element.js";
 import {
@@ -45,31 +37,6 @@ function genericPrint(path, options, print) {
     case "element":
     case "ieConditionalComment":
       return printElement(path, options, print);
-
-    case "angularControlFlowBlock":
-      return printAngularControlFlowBlock(path, options, print);
-    case "angularControlFlowBlockParameters":
-      return printAngularControlFlowBlockParameters(path, options, print);
-    case "angularControlFlowBlockParameter":
-      return htmlWhitespaceUtils.trim(node.expression);
-
-    case "angularLetDeclaration":
-      // print like "break-after-operator" layout assignment in estree printer
-      return group([
-        "@let ",
-        group([node.id, " =", group(indent([line, print("init")]))]),
-        // semicolon is required
-        ";",
-      ]);
-    case "angularLetDeclarationInitializer":
-      // basically printed via embedded formatting
-      return node.value;
-
-    case "angularIcuExpression":
-      return printAngularIcuExpression(path, options, print);
-    case "angularIcuCase":
-      return printAngularIcuCase(path, options, print);
-
     case "ieConditionalStartComment":
     case "ieConditionalEndComment":
       return [printOpeningTagStart(node), printClosingTagEnd(node)];
@@ -90,7 +57,7 @@ function genericPrint(path, options, print) {
         return [replaceEndOfLine(value), hasTrailingNewline ? hardline : ""];
       }
 
-      const prefix = printOpeningTagPrefix(node, options);
+      const prefix = printOpeningTagPrefix(node);
       const printed = getTextValueParts(node);
 
       const suffix = printClosingTagSuffix(node, options);
@@ -111,7 +78,7 @@ function genericPrint(path, options, print) {
       ];
     case "comment":
       return [
-        printOpeningTagPrefix(node, options),
+        printOpeningTagPrefix(node),
         replaceEndOfLine(
           options.originalText.slice(locStart(node), locEnd(node)),
         ),

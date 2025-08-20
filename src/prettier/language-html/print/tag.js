@@ -2,7 +2,6 @@
  * @import {Doc} from "../../document/builders.js"
  */
 
-import assert from "node:assert";
 import {
   hardline,
   indent,
@@ -18,25 +17,21 @@ import {
   hasPrettierIgnore,
   isPreLikeNode,
   isTextLikeNode,
-  isVueSfcBlock,
   shouldPreserveContent,
 } from "../utils/index.js";
 
 function printClosingTag(node, options) {
   return [
-    node.isSelfClosing ? "" : printClosingTagStart(node, options),
+    node.isSelfClosing ? "" : printClosingTagStart(node),
     printClosingTagEnd(node, options),
   ];
 }
 
-function printClosingTagStart(node, options) {
+function printClosingTagStart(node) {
   return node.lastChild &&
     needsToBorrowParentClosingTagStartMarker(node.lastChild)
     ? ""
-    : [
-        printClosingTagPrefix(node, options),
-        printClosingTagStartMarker(node, options),
-      ];
+    : [printClosingTagPrefix(node), printClosingTagStartMarker(node)];
 }
 
 function printClosingTagEnd(node, options) {
@@ -46,33 +41,26 @@ function printClosingTagEnd(node, options) {
       : needsToBorrowLastChildClosingTagEndMarker(node.parent)
   )
     ? ""
-    : [
-        printClosingTagEndMarker(node, options),
-        printClosingTagSuffix(node, options),
-      ];
+    : [printClosingTagEndMarker(node), printClosingTagSuffix(node, options)];
 }
 
-function printClosingTagPrefix(node, options) {
+function printClosingTagPrefix(node) {
   return needsToBorrowLastChildClosingTagEndMarker(node)
-    ? printClosingTagEndMarker(node.lastChild, options)
+    ? printClosingTagEndMarker(node.lastChild)
     : "";
 }
 
 function printClosingTagSuffix(node, options) {
   return needsToBorrowParentClosingTagStartMarker(node)
-    ? printClosingTagStartMarker(node.parent, options)
+    ? printClosingTagStartMarker(node.parent)
     : needsToBorrowNextOpeningTagStartMarker(node)
       ? printOpeningTagStartMarker(node.next, options)
       : "";
 }
 
-function printClosingTagStartMarker(node, options) {
+function printClosingTagStartMarker(node) {
   /* c8 ignore next 3 */
-  if (process.env.NODE_ENV !== "production") {
-    assert.ok(!node.isSelfClosing);
-  }
-  /* c8 ignore next 3 */
-  if (shouldNotPrintClosingTag(node, options)) {
+  if (shouldNotPrintClosingTag(node)) {
     return "";
   }
   switch (node.type) {
@@ -88,8 +76,8 @@ function printClosingTagStartMarker(node, options) {
   }
 }
 
-function printClosingTagEndMarker(node, options) {
-  if (shouldNotPrintClosingTag(node, options)) {
+function printClosingTagEndMarker(node) {
+  if (shouldNotPrintClosingTag(node)) {
     return "";
   }
   switch (node.type) {
@@ -100,8 +88,6 @@ function printClosingTagEndMarker(node, options) {
       return "]><!-->";
     case "interpolation":
       return "}}";
-    case "angularIcuExpression":
-      return "}";
     case "element":
       if (node.isSelfClosing) {
         return "/>";
@@ -112,11 +98,11 @@ function printClosingTagEndMarker(node, options) {
   }
 }
 
-function shouldNotPrintClosingTag(node, options) {
+function shouldNotPrintClosingTag(node) {
   return (
     !node.isSelfClosing &&
     !node.endSourceSpan &&
-    (hasPrettierIgnore(node) || shouldPreserveContent(node.parent, options))
+    (hasPrettierIgnore(node) || shouldPreserveContent(node.parent))
   );
 }
 
@@ -133,7 +119,6 @@ function needsToBorrowPrevClosingTagEndMarker(node) {
   return (
     node.prev &&
     node.prev.type !== "docType" &&
-    node.type !== "angularControlFlowBlock" &&
     !isTextLikeNode(node.prev) &&
     node.isLeadingSpaceSensitive &&
     !node.hasLeadingSpaces
@@ -193,15 +178,12 @@ function needsToBorrowNextOpeningTagStartMarker(node) {
 
 function getPrettierIgnoreAttributeCommentData(value) {
   const match = value.trim().match(/^prettier-ignore-attribute(?:\s+(.+))?$/su);
-
   if (!match) {
     return false;
   }
-
   if (!match[1]) {
     return true;
   }
-
   return match[1].split(/\s+/u);
 }
 
@@ -260,9 +242,7 @@ function printAttributes(path, options, print) {
     node.children.length === 0;
 
   const shouldPrintAttributePerLine =
-    options.singleAttributePerLine &&
-    node.attrs.length > 1 &&
-    !isVueSfcBlock(node, options);
+    options.singleAttributePerLine && node.attrs.length > 1;
   const attributeLine = shouldPrintAttributePerLine ? hardline : line;
 
   /** @type {Doc[]} */
@@ -328,17 +308,14 @@ function printOpeningTag(path, options, print) {
 function printOpeningTagStart(node, options) {
   return node.prev && needsToBorrowNextOpeningTagStartMarker(node.prev)
     ? ""
-    : [
-        printOpeningTagPrefix(node, options),
-        printOpeningTagStartMarker(node, options),
-      ];
+    : [printOpeningTagPrefix(node), printOpeningTagStartMarker(node, options)];
 }
 
-function printOpeningTagPrefix(node, options) {
+function printOpeningTagPrefix(node) {
   return needsToBorrowParentOpeningTagEndMarker(node)
     ? printOpeningTagEndMarker(node.parent)
     : needsToBorrowPrevClosingTagEndMarker(node)
-      ? printClosingTagEndMarker(node.prev, options)
+      ? printClosingTagEndMarker(node.prev)
       : "";
 }
 
@@ -368,8 +345,6 @@ function printOpeningTagStartMarker(node, options) {
       );
     }
 
-    case "angularIcuExpression":
-      return "{";
     case "element":
       if (node.condition) {
         return `<!--[if ${node.condition}]><!--><${node.rawName}`;
@@ -381,10 +356,6 @@ function printOpeningTagStartMarker(node, options) {
 }
 
 function printOpeningTagEndMarker(node) {
-  /* c8 ignore next 3 */
-  if (process.env.NODE_ENV !== "production") {
-    assert.ok(!node.isSelfClosing);
-  }
   switch (node.type) {
     case "ieConditionalComment":
       return "]>";

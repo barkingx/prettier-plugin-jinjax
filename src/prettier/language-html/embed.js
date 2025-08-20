@@ -6,9 +6,7 @@ import {
   line,
 } from "../document/builders.js";
 import printFrontMatter from "../utils/front-matter/print.js";
-import printAngularControlFlowBlockParameters from "./embed/angular-control-flow-block-parameters.js";
 import printAttribute from "./embed/attribute.js";
-import { formatAttributeValue } from "./embed/utils.js";
 import getNodeContent from "./get-node-content.js";
 import {
   needsToBorrowPrevClosingTagEndMarker,
@@ -22,30 +20,20 @@ import {
   htmlTrimPreserveIndentation,
   inferElementParser,
   isScriptLikeTag,
-  isVueNonHtmlBlock,
 } from "./utils/index.js";
-import isVueSfcWithTypescriptScript from "./utils/is-vue-sfc-with-typescript-script.js";
-
-const embeddedAngularControlFlowBlocks = new Set([
-  "if",
-  "else if",
-  "for",
-  "switch",
-  "case",
-]);
 
 function embed(path, options) {
   const { node } = path;
 
   switch (node.type) {
     case "element":
-      if (isScriptLikeTag(node, options) || node.type === "interpolation") {
+      if (isScriptLikeTag(node) || node.type === "interpolation") {
         // Fall through to "text"
         return;
       }
 
-      if (!node.isSelfClosing && isVueNonHtmlBlock(node, options)) {
-        const parser = inferElementParser(node, options);
+      if (!node.isSelfClosing) {
+        const parser = inferElementParser(node);
         if (!parser) {
           return;
         }
@@ -63,7 +51,7 @@ function embed(path, options) {
           }
 
           return [
-            printOpeningTagPrefix(node, options),
+            printOpeningTagPrefix(node),
             group(printOpeningTag(path, options, print)),
             isEmpty ? "" : hardline,
             doc,
@@ -76,8 +64,8 @@ function embed(path, options) {
       break;
 
     case "text":
-      if (isScriptLikeTag(node.parent, options)) {
-        const parser = inferElementParser(node.parent, options);
+      if (isScriptLikeTag(node.parent)) {
+        const parser = inferElementParser(node.parent);
         if (parser) {
           return async (textToDoc) => {
             const value =
@@ -102,7 +90,7 @@ function embed(path, options) {
 
             return [
               breakParent,
-              printOpeningTagPrefix(node, options),
+              printOpeningTagPrefix(node),
               await textToDoc(value, textToDocOptions),
               printClosingTagSuffix(node, options),
             ];
@@ -114,18 +102,8 @@ function embed(path, options) {
             __isInHtmlInterpolation: true, // to avoid unexpected `}}`
             __embeddedInHtml: true,
           };
-          if (options.parser === "angular") {
-            textToDocOptions.parser = "__ng_interpolation";
-          } else if (options.parser === "vue") {
-            textToDocOptions.parser = isVueSfcWithTypescriptScript(
-              path,
-              options,
-            )
-              ? "__vue_ts_expression"
-              : "__vue_expression";
-          } else {
-            textToDocOptions.parser = "__js_expression";
-          }
+
+          textToDocOptions.parser = "__js_expression";
 
           return [
             indent([line, await textToDoc(node.value, textToDocOptions)]),
@@ -143,20 +121,6 @@ function embed(path, options) {
 
     case "front-matter":
       return (textToDoc) => printFrontMatter(node, textToDoc);
-
-    case "angularControlFlowBlockParameters":
-      if (!embeddedAngularControlFlowBlocks.has(path.parent.name)) {
-        return;
-      }
-
-      return printAngularControlFlowBlockParameters;
-
-    case "angularLetDeclarationInitializer":
-      return (textToDoc) =>
-        formatAttributeValue(node.value, textToDoc, {
-          parser: "__ng_binding",
-          __isInHtmlAttribute: false,
-        });
   }
 }
 

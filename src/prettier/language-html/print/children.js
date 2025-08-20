@@ -49,7 +49,7 @@ function printChild(childPath, options, print) {
     const endLocation = getEndLocation(child);
 
     return [
-      printOpeningTagPrefix(child, options),
+      printOpeningTagPrefix(child),
       replaceEndOfLine(
         htmlWhitespaceUtils.trimEnd(
           options.originalText.slice(
@@ -59,7 +59,7 @@ function printChild(childPath, options, print) {
                 : 0),
             endLocation -
               (child.next && needsToBorrowPrevClosingTagEndMarker(child.next)
-                ? printClosingTagEndMarker(child, options).length
+                ? printClosingTagEndMarker(child).length
                 : 0),
           ),
         ),

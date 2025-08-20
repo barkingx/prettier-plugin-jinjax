@@ -1,10 +1,8 @@
 import { group } from "../../document/builders.js";
 import { mapDoc } from "../../document/utils.js";
-import printAngularAttribute from "./angular-attributes.js";
 import printClassNames from "./class-names.js";
 import printSrcset from "./srcset.js";
 import { printStyleAttribute } from "./style.js";
-import printVueAttribute from "./vue-attributes.js";
 
 /**
  * @import {Doc} from "../../document/builders.js"
@@ -25,10 +23,7 @@ function printAttribute(path, options) {
         node.valueSpan.start.offset,
         node.valueSpan.end.offset,
       ),
-    ) || // lwc: html`<my-element data-for={value}></my-element>`
-    (options.parser === "lwc" &&
-      node.value.startsWith("{") &&
-      node.value.endsWith("}"))
+    )
   ) {
     return [node.rawName, "=", node.value];
   }
@@ -37,8 +32,6 @@ function printAttribute(path, options) {
     printSrcset,
     printStyleAttribute,
     printClassNames,
-    printVueAttribute,
-    printAngularAttribute,
   ]) {
     const printValue = getValuePrinter(path, options);
     if (printValue) {

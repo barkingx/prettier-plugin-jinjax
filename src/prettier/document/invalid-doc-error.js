@@ -15,7 +15,6 @@ function getDocErrorMessage(doc) {
     throw new Error("doc is valid.");
   }
 
-  // eslint-disable-next-line prettier-internal-rules/no-unnecessary-ast-path-call
   const objectType = Object.prototype.toString.call(doc);
   if (objectType !== "[object Object]") {
     return `Unexpected doc '${objectType}'.`;

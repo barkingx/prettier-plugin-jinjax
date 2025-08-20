@@ -9,8 +9,6 @@ import {
   DOC_TYPE_INDENT_IF_BREAK,
   DOC_TYPE_LABEL,
   DOC_TYPE_LINE,
-  DOC_TYPE_LINE_SUFFIX,
-  DOC_TYPE_LINE_SUFFIX_BOUNDARY,
   DOC_TYPE_TRIM,
 } from "./constants.js";
 import {
@@ -87,24 +85,6 @@ function markAsRoot(contents) {
   // @ts-expect-error - TBD ???:
   return align({ type: "root" }, contents);
 }
-
-/**
- * @param {Doc} contents
- * @returns Doc
- */
-function dedent(contents) {
-  return align(-1, contents);
-}
-
-/**
- * @param {Doc[]} states
- * @param {object} [opts] - TBD ???
- * @returns Doc
- */
-function conditionalGroup(states, opts) {
-  return group(states[0], { ...opts, expandedStates: states });
-}
-
 /**
  * @param {Doc[]} parts
  * @returns Doc
@@ -151,18 +131,6 @@ function indentIfBreak(contents, opts) {
     negate: opts.negate,
   };
 }
-
-/**
- * @param {Doc} contents
- * @returns Doc
- */
-function lineSuffix(contents) {
-  assertDoc(contents);
-
-  return { type: DOC_TYPE_LINE_SUFFIX, contents };
-}
-
-const lineSuffixBoundary = { type: DOC_TYPE_LINE_SUFFIX_BOUNDARY };
 const breakParent = { type: DOC_TYPE_BREAK_PARENT };
 const trim = { type: DOC_TYPE_TRIM };
 
@@ -201,30 +169,6 @@ function join(separator, docs) {
 
   return parts;
 }
-
-/**
- * @param {Doc} doc
- * @param {number} size
- * @param {number} tabWidth
- */
-function addAlignmentToDoc(doc, size, tabWidth) {
-  assertDoc(doc);
-
-  let aligned = doc;
-  if (size > 0) {
-    // Use indent to add tabs for all the levels of tabs we need
-    for (let i = 0; i < Math.floor(size / tabWidth); ++i) {
-      aligned = indent(aligned);
-    }
-    // Use align for all the spaces that are needed
-    aligned = align(size % tabWidth, aligned);
-    // size is absolute from 0 and not relative to the current
-    // indentation, so we use -Infinity to reset the indentation to 0
-    aligned = align(Number.NEGATIVE_INFINITY, aligned);
-  }
-  return aligned;
-}
-
 /**
  * Mark a doc with an arbitrary truthy value. This doesn't affect how the doc is printed, but can be useful for heuristics based on doc introspection.
  * @param {any} label If falsy, the `contents` doc is returned as is.
@@ -237,12 +181,9 @@ function label(label, contents) {
 }
 
 export {
-  addAlignmentToDoc,
   align,
   breakParent,
-  conditionalGroup,
   cursor,
-  dedent,
   dedentToRoot,
   fill,
   group,
@@ -254,8 +195,6 @@ export {
   join,
   label,
   line,
-  lineSuffix,
-  lineSuffixBoundary,
   literalline,
   literallineWithoutBreakParent,
   markAsRoot,
