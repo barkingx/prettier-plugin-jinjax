@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "lint:fix": "pnpm dlx eslint --fix",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "debug": "prettier --plugin=./src/index.js ./test/index.html --write"
   },
   "packageManager": "pnpm@10.14.0",
   "devDependencies": {

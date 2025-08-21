@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<Button on:click="handleButtonClick" variant="primary" size="large" aria-label="Submit form and save data to the server"
+        data-test-id="main-submit-button">Click Me
+</Button>
+<p>Some paragraph text</p>
+<Label for="username">Username:</Label>
+
+<Sky on:select="handleSelect" color="blue" density="high"
+     data-analytics-event="sky-widget-selected" class="custom-sky-widget">
+  <Cloud type="cumulus" size="large" />
+  <Star color="yellow" twinkle="true" />
+  <P>why am i here?</P>
+</Sky>
+
+<common.Button on:click="commonButtonHandler" disabled />
+<widgets.Input type="text" placeholder="Enter your name" />
+
+<div>
+  <img src="path/to/image.jpg" alt="A test image" loading="lazy"><a href="/about" target="_blank" rel="noopener noreferrer">About Us</a>
+</div>
+
+<Card title="User Profile">
+  <Card.Header>
+    <h2>Profile Details</h2>
+  </Card.Header>
+  <Card.Body class="profile-body-container" data-profile-id="user12345" style="padding-top: 10px; padding-bottom: 20px;">
+    <p>This is a user profile card.</p>
+  </Card.Body>
+  <Card.Footer>
+    <Button variant="secondary">Edit Profile</Button>
+  </Card.Footer>
+</Card>
+
+<br />
+<Spinner />
+<Modal.Header />
+
+</body>
+</html>

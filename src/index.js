@@ -13,7 +13,7 @@ export default {
     {
       name: PLUGIN_KEY_PASCAL_CASED,
       parsers: [PLUGIN_KEY],
-      extensions: [EXTENSION_NAME_WITH_DOT],
+      extensions: [EXTENSION_NAME_WITH_DOT, ".html"],
       vscodeLanguageIds: [EXTENSION_NAME],
     },
   ],
