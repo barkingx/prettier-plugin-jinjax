@@ -26,12 +26,6 @@ const options = {
     ],
   },
   singleAttributePerLine: commonOptions.singleAttributePerLine,
-  vueIndentScriptAndStyle: {
-    category: CATEGORY_HTML,
-    type: "boolean",
-    default: false,
-    description: "Indent script and style tags in Vue files.",
-  },
 };
 
 export default options;

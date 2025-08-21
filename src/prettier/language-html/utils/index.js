@@ -6,6 +6,7 @@ import { hardline, join, line } from "../../document/builders.js";
 import { replaceEndOfLine } from "../../document/utils.js";
 import isFrontMatter from "../../utils/front-matter/is-front-matter.js";
 import htmlWhitespaceUtils from "../../utils/html-whitespace-utils.js";
+import inferParser from "../../utils/infer-parser.js";
 import {
   CSS_DISPLAY_DEFAULT,
   CSS_DISPLAY_TAGS,
@@ -64,7 +65,7 @@ function shouldPreserveContent(node) {
     return true;
   }
 
-  return !isScriptLikeTag(node) && node.type !== "interpolation";
+  return false;
 }
 
 function hasPrettierIgnore(node) {
@@ -94,7 +95,7 @@ function isTextLikeNode(node) {
   return node.type === "text" || node.type === "comment";
 }
 
-function isScriptLikeTag(node) {
+function isScriptLikeTag(node, options) {
   return (
     node.type === "element" &&
     (node.fullName === "script" ||
@@ -106,13 +107,13 @@ function isScriptLikeTag(node) {
   );
 }
 
-function canHaveInterpolation(node) {
-  return node.children && !isScriptLikeTag(node);
+function canHaveInterpolation(node, options) {
+  return node.children && !isScriptLikeTag(node, options);
 }
 
-function isWhitespaceSensitiveNode(node) {
+function isWhitespaceSensitiveNode(node, options) {
   return (
-    isScriptLikeTag(node) ||
+    isScriptLikeTag(node, options) ||
     node.type === "interpolation" ||
     isIndentationSensitiveNode(node)
   );
@@ -122,7 +123,7 @@ function isIndentationSensitiveNode(node) {
   return getNodeCssStyleWhiteSpace(node).startsWith("pre");
 }
 
-function isLeadingSpaceSensitiveNode(node) {
+function isLeadingSpaceSensitiveNode(node, options) {
   const isLeadingSpaceSensitive = _isLeadingSpaceSensitiveNode();
 
   if (
@@ -160,19 +161,24 @@ function isLeadingSpaceSensitiveNode(node) {
       !node.prev &&
       (node.parent.type === "root" ||
         (isPreLikeNode(node) && node.parent) ||
-        isScriptLikeTag(node.parent) ||
+        isScriptLikeTag(node.parent, options) ||
         !isFirstChildLeadingSpaceSensitiveCssDisplay(node.parent.cssDisplay))
     ) {
       return false;
     }
 
-    return !(
-      node.prev && !isNextLeadingSpaceSensitiveCssDisplay(node.prev.cssDisplay)
-    );
+    if (
+      node.prev &&
+      !isNextLeadingSpaceSensitiveCssDisplay(node.prev.cssDisplay)
+    ) {
+      return false;
+    }
+
+    return true;
   }
 }
 
-function isTrailingSpaceSensitiveNode(node) {
+function isTrailingSpaceSensitiveNode(node, options) {
   if (isFrontMatter(node)) {
     return false;
   }
@@ -197,21 +203,26 @@ function isTrailingSpaceSensitiveNode(node) {
     !node.next &&
     (node.parent.type === "root" ||
       (isPreLikeNode(node) && node.parent) ||
-      isScriptLikeTag(node.parent) ||
+      isScriptLikeTag(node.parent, options) ||
       !isLastChildTrailingSpaceSensitiveCssDisplay(node.parent.cssDisplay))
   ) {
     return false;
   }
 
-  return !(
-    node.next && !isPrevTrailingSpaceSensitiveCssDisplay(node.next.cssDisplay)
-  );
+  if (
+    node.next &&
+    !isPrevTrailingSpaceSensitiveCssDisplay(node.next.cssDisplay)
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
-function isDanglingSpaceSensitiveNode(node) {
+function isDanglingSpaceSensitiveNode(node, options) {
   return (
     isDanglingSpaceSensitiveCssDisplay(node.cssDisplay) &&
-    !isScriptLikeTag(node)
+    !isScriptLikeTag(node, options)
   );
 }
 
@@ -348,7 +359,7 @@ function inferParserByTypeAttribute(type) {
   }
 }
 
-function inferScriptParser(node) {
+function inferScriptParser(node, options) {
   const { name, attrMap } = node;
 
   if (name !== "script" || Object.hasOwn(attrMap, "src")) {
@@ -361,17 +372,19 @@ function inferScriptParser(node) {
     return "babel";
   }
 
-  return inferParserByTypeAttribute(type);
+  return (
+    inferParser(options, { language: lang }) ?? inferParserByTypeAttribute(type)
+  );
 }
-
-function inferStyleParser(node) {
+function inferStyleParser(node, options) {
   if (node.name === "style") {
-    return "css";
+    const { lang } = node.attrMap;
+    return lang ? inferParser(options, { language: lang }) : "css";
   }
 }
 
-function inferElementParser(node) {
-  return inferScriptParser(node) ?? inferStyleParser(node);
+function inferElementParser(node, options) {
+  return inferScriptParser(node, options) ?? inferStyleParser(node, options);
 }
 
 function isBlockLikeCssDisplay(cssDisplay) {
@@ -520,7 +533,6 @@ function getTextValueParts(node, value = node.value) {
         )
     : join(line, htmlWhitespaceUtils.split(value));
 }
-
 export {
   canHaveInterpolation,
   dedentString,

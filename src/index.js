@@ -1,6 +1,6 @@
-import { html as prettierHtmlParser } from "./temp/language-html/parser-html.js";
-import prettierHtmlPrinter from "./temp/language-html/printer-html.js";
-import prettierHtmlOptions from "./temp/language-html/options.js";
+import { html as prettierHtmlParser } from "./prettier/language-html/parser-html.js";
+import prettierHtmlPrinter from "./prettier/language-html/printer-html.js";
+import prettierHtmlOptions from "./prettier/language-html/options.js";
 
 const AST_FORMAT_NAME = "html-jinjax-ast";
 const EXTENSION_NAME = "jinja";

@@ -11,53 +11,62 @@ import traverseDoc from "./traverse-doc.js";
  * @typedef {import("../builders.js").Doc} Doc
  */
 
-const checked = new WeakSet();
-const assertDoc = function (doc) {
-  traverseDoc(doc, (doc) => {
-    if (checked.has(doc)) {
-      return false;
-    }
+const checked = process.env.NODE_ENV !== "production" && new WeakSet();
+const noop = () => {};
+const assertDoc =
+  process.env.NODE_ENV === "production"
+    ? noop
+    : function (doc) {
+        traverseDoc(doc, (doc) => {
+          if (checked.has(doc)) {
+            return false;
+          }
 
-    if (typeof doc !== "string") {
-      checked.add(doc);
-    }
-  });
-};
+          if (typeof doc !== "string") {
+            checked.add(doc);
+          }
+        });
+      };
 
-const assertDocArray = function (docs, optional = false) {
-  if (optional && !docs) {
-    return;
-  }
+const assertDocArray =
+  process.env.NODE_ENV === "production"
+    ? noop
+    : function (docs, optional = false) {
+        if (optional && !docs) {
+          return;
+        }
 
-  if (!Array.isArray(docs)) {
-    throw new TypeError("Unexpected doc array.");
-  }
+        if (!Array.isArray(docs)) {
+          throw new TypeError("Unexpected doc array.");
+        }
 
-  for (const doc of docs) {
-    assertDoc(doc);
-  }
-};
+        for (const doc of docs) {
+          assertDoc(doc);
+        }
+      };
 
 const assertDocFillParts =
-  /**
-   * @param {Doc[]} parts
-   */
-  function (parts) {
-    assertDocArray(parts);
-    if (parts.length > 1 && isEmptyDoc(parts.at(-1))) {
-      // stripTrailingHardline can transform trailing hardline into empty string.
-      // The trailing empty string is not a problem even if it's a line element.
-      parts = parts.slice(0, -1);
-    }
-    for (const [i, doc] of parts.entries()) {
-      if (i % 2 === 1 && !isValidSeparator(doc)) {
-        const type = getDocType(doc);
-        throw new Error(
-          `Unexpected non-line-break doc at ${i}. Doc type is ${type}.`,
-        );
-      }
-    }
-  };
+  process.env.NODE_ENV === "production"
+    ? noop
+    : /**
+       * @param {Doc[]} parts
+       */
+      function (parts) {
+        assertDocArray(parts);
+        if (parts.length > 1 && isEmptyDoc(parts.at(-1))) {
+          // stripTrailingHardline can transform trailing hardline into empty string.
+          // The trailing empty string is not a problem even if it's a line element.
+          parts = parts.slice(0, -1);
+        }
+        for (const [i, doc] of parts.entries()) {
+          if (i % 2 === 1 && !isValidSeparator(doc)) {
+            const type = getDocType(doc);
+            throw new Error(
+              `Unexpected non-line-break doc at ${i}. Doc type is ${type}.`,
+            );
+          }
+        }
+      };
 
 /**
  * @param {Doc} doc

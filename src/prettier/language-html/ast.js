@@ -7,6 +7,9 @@ const NODES_KEYS = {
 
 const NON_ENUMERABLE_PROPERTIES = new Set(["parent"]);
 
+// TODO: typechecking is problematic for this class because of this issue:
+// https://github.com/microsoft/TypeScript/issues/26811
+
 class Node {
   type;
   parent;
@@ -73,8 +76,8 @@ class Node {
     for (const NODES_KEY in NODES_KEYS) {
       const nodes = this[NODES_KEY];
       if (nodes) {
-        for (const node of nodes) {
-          node.walk(fn);
+        for (let i = 0; i < nodes.length; i++) {
+          nodes[i].walk(fn);
         }
       }
     }
@@ -120,7 +123,9 @@ class Node {
     return new Node(this);
   }
 
-  #childrenProperty = "children";
+  get #childrenProperty() {
+    return "children";
+  }
 
   // Use `$` prefix since `children` already exits in the original AST,
   // Can't use `#children` either, since it need be public
@@ -157,15 +162,18 @@ class Node {
 
   // for element and attribute
   get rawName() {
+    // @ts-expect-error
     return this.hasExplicitNamespace ? this.fullName : this.name;
   }
 
   get fullName() {
+    // @ts-expect-error
     return this.namespace ? this.namespace + ":" + this.name : this.name;
   }
 
   get attrMap() {
     return Object.fromEntries(
+      // @ts-expect-error
       this.attrs.map((attr) => [attr.fullName, attr.value]),
     );
   }

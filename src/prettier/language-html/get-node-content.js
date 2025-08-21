@@ -25,9 +25,9 @@ function getNodeContent(node, options) {
     node.lastChild &&
     needsToBorrowParentClosingTagStartMarker(node.lastChild)
   ) {
-    end += printClosingTagStartMarker(node).length;
+    end += printClosingTagStartMarker(node, options).length;
   } else if (needsToBorrowLastChildClosingTagEndMarker(node)) {
-    end -= printClosingTagEndMarker(node.lastChild).length;
+    end -= printClosingTagEndMarker(node.lastChild, options).length;
   }
 
   return options.originalText.slice(start, end);

@@ -27,13 +27,13 @@ function embed(path, options) {
 
   switch (node.type) {
     case "element":
-      if (isScriptLikeTag(node) || node.type === "interpolation") {
+      if (isScriptLikeTag(node, options) || node.type === "interpolation") {
         // Fall through to "text"
         return;
       }
 
       if (!node.isSelfClosing) {
-        const parser = inferElementParser(node);
+        const parser = inferElementParser(node, options);
         if (!parser) {
           return;
         }
@@ -51,7 +51,7 @@ function embed(path, options) {
           }
 
           return [
-            printOpeningTagPrefix(node),
+            printOpeningTagPrefix(node, options),
             group(printOpeningTag(path, options, print)),
             isEmpty ? "" : hardline,
             doc,
@@ -64,8 +64,8 @@ function embed(path, options) {
       break;
 
     case "text":
-      if (isScriptLikeTag(node.parent)) {
-        const parser = inferElementParser(node.parent);
+      if (isScriptLikeTag(node.parent, options)) {
+        const parser = inferElementParser(node.parent, options);
         if (parser) {
           return async (textToDoc) => {
             const value =
@@ -90,7 +90,7 @@ function embed(path, options) {
 
             return [
               breakParent,
-              printOpeningTagPrefix(node),
+              printOpeningTagPrefix(node, options),
               await textToDoc(value, textToDocOptions),
               printClosingTagSuffix(node, options),
             ];
@@ -99,11 +99,10 @@ function embed(path, options) {
       } else if (node.parent.type === "interpolation") {
         return async (textToDoc) => {
           const textToDocOptions = {
+            parser: "__js_expression",
             __isInHtmlInterpolation: true, // to avoid unexpected `}}`
             __embeddedInHtml: true,
           };
-
-          textToDocOptions.parser = "__js_expression";
 
           return [
             indent([line, await textToDoc(node.value, textToDocOptions)]),

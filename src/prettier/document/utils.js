@@ -104,7 +104,8 @@ function stripTrailingHardlineFromParts(parts) {
   }
 
   if (parts.length > 0) {
-    parts[parts.length - 1] = stripTrailingHardlineFromDoc(parts.at(-1));
+    const lastPart = stripTrailingHardlineFromDoc(parts.at(-1));
+    parts[parts.length - 1] = lastPart;
   }
 
   return parts;

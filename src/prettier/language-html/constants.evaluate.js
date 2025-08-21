@@ -33,7 +33,7 @@ const CSS_DISPLAY_TAGS = {
   // `noscript` is inline
   // noscript: "inline",
 
-  // there's no css display for these elements, but they behave these ways
+  // there's no css display for these elements but they behave these ways
   meter: "inline-block",
   progress: "inline-block",
   object: "inline-block",

@@ -10,7 +10,11 @@ import {
 } from "../../document/builders.js";
 import { replaceEndOfLine } from "../../document/utils.js";
 import getNodeContent from "../get-node-content.js";
-import { forceBreakContent, shouldPreserveContent } from "../utils/index.js";
+import {
+  forceBreakContent,
+  isScriptLikeTag,
+  shouldPreserveContent,
+} from "../utils/index.js";
 import { printChildren } from "./children.js";
 import {
   needsToBorrowLastChildClosingTagEndMarker,
@@ -26,7 +30,7 @@ function printElement(path, options, print) {
 
   if (shouldPreserveContent(node)) {
     return [
-      printOpeningTagPrefix(node),
+      printOpeningTagPrefix(node, options),
       group(printOpeningTag(path, options, print)),
       replaceEndOfLine(getNodeContent(node, options)),
       ...printClosingTag(node, options),
@@ -73,6 +77,9 @@ function printElement(path, options, print) {
   const printChildrenDoc = (childrenDoc) => {
     if (shouldHugContent) {
       return indentIfBreak(childrenDoc, { groupId: attrGroupId });
+    }
+    if (isScriptLikeTag(node, options) && node.parent.type === "root") {
+      return childrenDoc;
     }
     return indent(childrenDoc);
   };

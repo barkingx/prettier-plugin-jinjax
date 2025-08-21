@@ -11,7 +11,6 @@ import embed from "./embed.js";
 import getVisitorKeys from "./get-visitor-keys.js";
 import { locEnd, locStart } from "./loc.js";
 import { insertPragma } from "./pragma.js";
-
 import { printChildren } from "./print/children.js";
 import { printElement } from "./print/element.js";
 import {
@@ -57,7 +56,7 @@ function genericPrint(path, options, print) {
         return [replaceEndOfLine(value), hasTrailingNewline ? hardline : ""];
       }
 
-      const prefix = printOpeningTagPrefix(node);
+      const prefix = printOpeningTagPrefix(node, options);
       const printed = getTextValueParts(node);
 
       const suffix = printClosingTagSuffix(node, options);
@@ -78,7 +77,7 @@ function genericPrint(path, options, print) {
       ];
     case "comment":
       return [
-        printOpeningTagPrefix(node),
+        printOpeningTagPrefix(node, options),
         replaceEndOfLine(
           options.originalText.slice(locStart(node), locEnd(node)),
         ),
@@ -110,7 +109,7 @@ function genericPrint(path, options, print) {
   }
 }
 
-export default {
+const printer = {
   preprocess,
   print: genericPrint,
   insertPragma,
@@ -118,3 +117,5 @@ export default {
   embed,
   getVisitorKeys,
 };
+
+export default printer;
