@@ -102,7 +102,6 @@ function isScriptLikeTag(node, options) {
       node.fullName === "style" ||
       node.fullName === "svg:style" ||
       node.fullName === "svg:script" ||
-      (node.fullName === "mj-style" && options.parser === "mjml") ||
       (isUnknownNamespace(node) &&
         (node.name === "script" || node.name === "style")))
   );
@@ -381,10 +380,6 @@ function inferStyleParser(node, options) {
   if (node.name === "style") {
     const { lang } = node.attrMap;
     return lang ? inferParser(options, { language: lang }) : "css";
-  }
-
-  if (node.name === "mj-style" && options.parser === "mjml") {
-    return "css";
   }
 }
 

@@ -17,21 +17,6 @@ function printAttribute(path, options) {
     return;
   }
 
-  if (
-    // lit-html: html`<my-element obj=${obj}></my-element>`
-    /^PRETTIER_HTML_PLACEHOLDER_\d+_\d+_IN_JS$/u.test(
-      options.originalText.slice(
-        node.valueSpan.start.offset,
-        node.valueSpan.end.offset,
-      ),
-    ) || // lwc: html`<my-element data-for={value}></my-element>`
-    (options.parser === "lwc" &&
-      node.value.startsWith("{") &&
-      node.value.endsWith("}"))
-  ) {
-    return [node.rawName, "=", node.value];
-  }
-
   for (const getValuePrinter of [
     printSrcset,
     printStyleAttribute,
