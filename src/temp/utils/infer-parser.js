@@ -1,6 +1,6 @@
 import getInterpreter from "./get-interpreter.js";
 import isNonEmptyArray from "./is-non-empty-array.js";
-import toPath from "./universal-to-path.js";
+import { fileURLToPath as toPath } from "node:url";
 
 /** @import {Options, SupportLanguage} from "../index.js" */
 

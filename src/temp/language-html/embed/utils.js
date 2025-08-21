@@ -7,4 +7,4 @@ import { indent, softline } from "../../document/builders.js";
 function printExpand(doc, canHaveTrailingWhitespace = true) {
   return [indent([softline, doc]), canHaveTrailingWhitespace ? softline : ""];
 }
-export {  printExpand};
+export { printExpand };

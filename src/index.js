@@ -1,4 +1,4 @@
-import {html as prettierHtmlParser} from "./temp/language-html/parser-html.js";
+import { html as prettierHtmlParser } from "./temp/language-html/parser-html.js";
 import prettierHtmlPrinter from "./temp/language-html/printer-html.js";
 import prettierHtmlOptions from "./temp/language-html/options.js";
 
@@ -13,10 +13,7 @@ export default {
     {
       name: PLUGIN_KEY_PASCAL_CASED,
       parsers: [PLUGIN_KEY],
-      extensions: [
-        EXTENSION_NAME_WITH_DOT,
-        ".html"
-      ],
+      extensions: [EXTENSION_NAME_WITH_DOT, ".html"],
       vscodeLanguageIds: [EXTENSION_NAME],
     },
   ],
@@ -26,5 +23,3 @@ export default {
   printers: { [AST_FORMAT_NAME]: prettierHtmlPrinter },
   options: prettierHtmlOptions,
 };
-
-

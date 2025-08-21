@@ -22,7 +22,6 @@ import {
   isScriptLikeTag,
 } from "./utils/index.js";
 
-
 function embed(path, options) {
   const { node } = path;
 

@@ -92,106 +92,6 @@ function mapDoc(doc, cb) {
     }
   }
 }
-
-function findInDoc(doc, fn, defaultValue) {
-  let result = defaultValue;
-  let shouldSkipFurtherProcessing = false;
-  function findInDocOnEnterFn(doc) {
-    if (shouldSkipFurtherProcessing) {
-      return false;
-    }
-
-    const maybeResult = fn(doc);
-    if (maybeResult !== undefined) {
-      shouldSkipFurtherProcessing = true;
-      result = maybeResult;
-    }
-  }
-  traverseDoc(doc, findInDocOnEnterFn);
-  return result;
-}
-
-function willBreakFn(doc) {
-  if (doc.type === DOC_TYPE_GROUP && doc.break) {
-    return true;
-  }
-  if (doc.type === DOC_TYPE_LINE && doc.hard) {
-    return true;
-  }
-  if (doc.type === DOC_TYPE_BREAK_PARENT) {
-    return true;
-  }
-}
-
-function willBreak(doc) {
-  return findInDoc(doc, willBreakFn, false);
-}
-
-function breakParentGroup(groupStack) {
-  if (groupStack.length > 0) {
-    const parentGroup = groupStack.at(-1);
-    // Breaks are not propagated through conditional groups because
-    // the user is expected to manually handle what breaks.
-    if (!parentGroup.expandedStates && !parentGroup.break) {
-      // An alternative truthy value allows to distinguish propagated group breaks
-      // and not to print them as `group(..., { break: true })` in `--debug-print-doc`.
-      parentGroup.break = "propagated";
-    }
-  }
-  return null;
-}
-
-function propagateBreaks(doc) {
-  const alreadyVisitedSet = new Set();
-  const groupStack = [];
-  function propagateBreaksOnEnterFn(doc) {
-    if (doc.type === DOC_TYPE_BREAK_PARENT) {
-      breakParentGroup(groupStack);
-    }
-    if (doc.type === DOC_TYPE_GROUP) {
-      groupStack.push(doc);
-      if (alreadyVisitedSet.has(doc)) {
-        return false;
-      }
-      alreadyVisitedSet.add(doc);
-    }
-  }
-  function propagateBreaksOnExitFn(doc) {
-    if (doc.type === DOC_TYPE_GROUP) {
-      const group = groupStack.pop();
-      if (group.break) {
-        breakParentGroup(groupStack);
-      }
-    }
-  }
-  traverseDoc(
-    doc,
-    propagateBreaksOnEnterFn,
-    propagateBreaksOnExitFn,
-    /* shouldTraverseConditionalGroups */ true,
-  );
-}
-
-function removeLinesFn(doc) {
-  // Force this doc into flat mode by statically converting all
-  // lines into spaces (or soft lines into nothing). Hard lines
-  // should still output because there's too great of a chance
-  // of breaking existing assumptions otherwise.
-  if (doc.type === DOC_TYPE_LINE && !doc.hard) {
-    return doc.soft ? "" : " ";
-  }
-
-  if (doc.type === DOC_TYPE_IF_BREAK) {
-    return doc.flatContents;
-  }
-
-  return doc;
-}
-
-function removeLines(doc) {
-  return mapDoc(doc, removeLinesFn);
-}
-
 function stripTrailingHardlineFromParts(parts) {
   parts = [...parts];
 
@@ -253,100 +153,10 @@ function stripTrailingHardlineFromDoc(doc) {
 
   return doc;
 }
-
-function stripTrailingHardline(doc) {
-  // HACK remove ending hardline, original PR: #1984
-  return stripTrailingHardlineFromDoc(cleanDoc(doc));
-}
-
-function cleanDocFn(doc) {
-  switch (getDocType(doc)) {
-    case DOC_TYPE_FILL:
-      if (doc.parts.every((part) => part === "")) {
-        return "";
-      }
-      break;
-    case DOC_TYPE_GROUP:
-      if (!doc.contents && !doc.id && !doc.break && !doc.expandedStates) {
-        return "";
-      }
-      // Remove nested only group
-      if (
-        doc.contents.type === DOC_TYPE_GROUP &&
-        doc.contents.id === doc.id &&
-        doc.contents.break === doc.break &&
-        doc.contents.expandedStates === doc.expandedStates
-      ) {
-        return doc.contents;
-      }
-      break;
-    case DOC_TYPE_ALIGN:
-    case DOC_TYPE_INDENT:
-    case DOC_TYPE_INDENT_IF_BREAK:
-    case DOC_TYPE_LINE_SUFFIX:
-      if (!doc.contents) {
-        return "";
-      }
-      break;
-    case DOC_TYPE_IF_BREAK:
-      if (!doc.flatContents && !doc.breakContents) {
-        return "";
-      }
-      break;
-    case DOC_TYPE_ARRAY: {
-      // Flat array, concat strings
-      const parts = [];
-      for (const part of doc) {
-        if (!part) {
-          continue;
-        }
-        const [currentPart, ...restParts] = Array.isArray(part) ? part : [part];
-        if (
-          typeof currentPart === "string" &&
-          typeof parts.at(-1) === "string"
-        ) {
-          parts[parts.length - 1] += currentPart;
-        } else {
-          parts.push(currentPart);
-        }
-        parts.push(...restParts);
-      }
-
-      if (parts.length === 0) {
-        return "";
-      }
-
-      if (parts.length === 1) {
-        return parts[0];
-      }
-
-      return parts;
-    }
-    case DOC_TYPE_STRING:
-    case DOC_TYPE_CURSOR:
-    case DOC_TYPE_TRIM:
-    case DOC_TYPE_LINE_SUFFIX_BOUNDARY:
-    case DOC_TYPE_LINE:
-    case DOC_TYPE_LABEL:
-    case DOC_TYPE_BREAK_PARENT:
-      // No op
-      break;
-    default:
-      /* c8 ignore next 3 */
-      throw new InvalidDocError(doc);
-  }
-
-  return doc;
-}
-
 // - concat strings
 // - flat arrays except for parts of `fill`
 // - merge arrays of strings into single strings
 // - remove nested `group`s and empty `fill`/`align`/`indent`/`line-suffix`/`if-break` if possible
-function cleanDoc(doc) {
-  return mapDoc(doc, (currentDoc) => cleanDocFn(currentDoc));
-}
-
 function replaceEndOfLine(doc, replacement = literalline) {
   return mapDoc(doc, (currentDoc) =>
     typeof currentDoc === "string"
@@ -354,23 +164,6 @@ function replaceEndOfLine(doc, replacement = literalline) {
       : currentDoc,
   );
 }
-
-function canBreakFn(doc) {
-  if (doc.type === DOC_TYPE_LINE) {
-    return true;
-  }
-}
-
-function canBreak(doc) {
-  return findInDoc(doc, canBreakFn, false);
-}
-
-function inheritLabel(doc, fn) {
-  return doc.type === DOC_TYPE_LABEL
-    ? { ...doc, contents: fn(doc.contents) }
-    : fn(doc);
-}
-
 /**
  * returns true iff cleanDoc(doc) === ""
  * @param {import("./builders.js").Doc} doc
@@ -396,18 +189,4 @@ function isEmptyDoc(doc) {
   return isEmpty;
 }
 
-export {
-  canBreak,
-  cleanDoc,
-  findInDoc,
-  getDocType,
-  inheritLabel,
-  isEmptyDoc,
-  mapDoc,
-  propagateBreaks,
-  removeLines,
-  replaceEndOfLine,
-  stripTrailingHardline,
-  traverseDoc,
-  willBreak,
-};
+export { getDocType, isEmptyDoc, mapDoc, replaceEndOfLine, traverseDoc };

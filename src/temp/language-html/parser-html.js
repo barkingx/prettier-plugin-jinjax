@@ -9,10 +9,10 @@ import {
 } from "angular-html-parser";
 import createError from "../common/parser-create-error.js";
 import parseFrontMatter from "../utils/front-matter/parse.js";
-import {Node} from "./ast.js";
-import {parseIeConditionalComment} from "./conditional-comment.js";
-import {locEnd, locStart} from "./loc.js";
-import {hasIgnorePragma, hasPragma} from "./pragma.js";
+import { Node } from "./ast.js";
+import { parseIeConditionalComment } from "./conditional-comment.js";
+import { locEnd, locStart } from "./loc.js";
+import { hasIgnorePragma, hasPragma } from "./pragma.js";
 import HTML_ELEMENT_ATTRIBUTES from "./utils/html-elements-attributes.evaluate.js";
 import HTML_TAGS from "./utils/html-tags.evaluate.js";
 import isUnknownNamespace from "./utils/is-unknown-namespace.js";
@@ -288,4 +288,7 @@ const HTML_PARSE_OPTIONS = {
 };
 
 // HTML
-export const html = createParser({...HTML_PARSE_OPTIONS, normalizeTagName: false});
+export const html = createParser({
+  ...HTML_PARSE_OPTIONS,
+  normalizeTagName: false,
+});

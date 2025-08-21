@@ -256,8 +256,7 @@ function printAttributes(path, options, print) {
     node.children.length === 0;
 
   const shouldPrintAttributePerLine =
-    options.singleAttributePerLine &&
-    node.attrs.length > 1;
+    options.singleAttributePerLine && node.attrs.length > 1;
   const attributeLine = shouldPrintAttributePerLine ? hardline : line;
 
   /** @type {Doc[]} */

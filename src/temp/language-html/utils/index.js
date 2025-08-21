@@ -384,10 +384,7 @@ function inferStyleParser(node, options) {
 }
 
 function inferElementParser(node, options) {
-  return (
-    inferScriptParser(node, options) ??
-    inferStyleParser(node, options)
-  );
+  return inferScriptParser(node, options) ?? inferStyleParser(node, options);
 }
 
 function isBlockLikeCssDisplay(cssDisplay) {

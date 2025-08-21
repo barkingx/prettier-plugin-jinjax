@@ -14,13 +14,7 @@ const ignoredProperties = new Set([
   "expSourceSpan",
   "valueSourceSpan",
 ]);
-new Set([
-  "if",
-  "else if",
-  "for",
-  "switch",
-  "case",
-]);
+new Set(["if", "else if", "for", "switch", "case"]);
 function clean(original, cloned) {
   if (original.type === "text" || original.type === "comment") {
     return null;
