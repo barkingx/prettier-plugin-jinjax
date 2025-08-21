@@ -21,7 +21,7 @@ import getDocType from "./get-doc-type.js";
 // Using a unique object to compare by reference.
 const traverseDocOnExitStackMarker = {};
 
-function traverseDoc(doc, onEnter, onExit, shouldTraverseConditionalGroups) {
+function traverseDoc(doc, onEnter, onExit) {
   const docsStack = [doc];
 
   while (docsStack.length > 0) {
@@ -66,7 +66,7 @@ function traverseDoc(doc, onEnter, onExit, shouldTraverseConditionalGroups) {
         break;
 
       case DOC_TYPE_GROUP:
-        if (shouldTraverseConditionalGroups && doc.expandedStates) {
+        if (doc.expandedStates) {
           for (let ic = doc.expandedStates.length, i = ic - 1; i >= 0; --i) {
             docsStack.push(doc.expandedStates[i]);
           }

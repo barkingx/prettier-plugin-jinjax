@@ -33,23 +33,6 @@ const getLeadingAndTrailingHtmlWhitespace = (string) => {
 };
 
 function shouldPreserveContent(node) {
-  // unterminated node in ie conditional comment
-  // e.g. <!--[if lt IE 9]><html><![endif]-->
-  if (
-    node.type === "ieConditionalComment" &&
-    node.lastChild &&
-    !node.lastChild.isSelfClosing &&
-    !node.lastChild.endSourceSpan
-  ) {
-    return true;
-  }
-
-  // incomplete html in ie conditional comment
-  // e.g. <!--[if lt IE 9]></div><![endif]-->
-  if (node.type === "ieConditionalComment" && !node.complete) {
-    return true;
-  }
-
   return (
     isPreLikeNode(node) &&
     node.children.some(
@@ -282,7 +265,6 @@ function hasTrailingLineBreak(node) {
 
 function preferHardlineAsSurroundingSpaces(node) {
   switch (node.type) {
-    case "ieConditionalComment":
     case "comment":
     case "directive":
       return true;

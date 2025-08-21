@@ -64,8 +64,6 @@ function printClosingTagStartMarker(node) {
     return "";
   }
   switch (node.type) {
-    case "ieConditionalComment":
-      return "<!";
     case "element":
       if (node.hasHtmComponentClosingTag) {
         return "<//";
@@ -81,11 +79,6 @@ function printClosingTagEndMarker(node) {
     return "";
   }
   switch (node.type) {
-    case "ieConditionalComment":
-    case "ieConditionalEndComment":
-      return "[endif]-->";
-    case "ieConditionalStartComment":
-      return "]><!-->";
     case "interpolation":
       return "}}";
     case "element":
@@ -322,11 +315,6 @@ function printOpeningTagPrefix(node) {
 const HTML5_DOCTYPE_START_MARKER = "<!doctype";
 function printOpeningTagStartMarker(node, options) {
   switch (node.type) {
-    case "ieConditionalComment":
-    case "ieConditionalStartComment":
-      return `<!--[if ${node.condition}`;
-    case "ieConditionalEndComment":
-      return "<!--<!";
     case "interpolation":
       return "{{";
     case "docType": {
@@ -357,8 +345,6 @@ function printOpeningTagStartMarker(node, options) {
 
 function printOpeningTagEndMarker(node) {
   switch (node.type) {
-    case "ieConditionalComment":
-      return "]>";
     case "element":
       if (node.condition) {
         return "><!--<![endif]-->";

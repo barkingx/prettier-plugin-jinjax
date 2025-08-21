@@ -13,7 +13,6 @@ import {
 
 const PREPROCESS_PIPELINE = [
   removeIgnorableFirstLf,
-  mergeIfConditionalStartEndCommentIntoElementOpeningTag,
   mergeCdataIntoText,
   extractInterpolation,
   extractWhitespaces,
@@ -46,51 +45,6 @@ function removeIgnorableFirstLf(ast /*, options */) {
         node.removeChild(text);
       } else {
         text.value = text.value.slice(1);
-      }
-    }
-  });
-}
-
-function mergeIfConditionalStartEndCommentIntoElementOpeningTag(
-  ast /*, options */,
-) {
-  /**
-   *     <!--[if ...]><!--><target><!--<![endif]-->
-   */
-  const isTarget = (node) =>
-    node.type === "element" &&
-    node.prev?.type === "ieConditionalStartComment" &&
-    node.prev.sourceSpan.end.offset === node.startSourceSpan.start.offset &&
-    node.firstChild?.type === "ieConditionalEndComment" &&
-    node.firstChild.sourceSpan.start.offset === node.startSourceSpan.end.offset;
-  ast.walk((node) => {
-    if (node.children) {
-      for (let i = 0; i < node.children.length; i++) {
-        const child = node.children[i];
-        if (!isTarget(child)) {
-          continue;
-        }
-
-        const ieConditionalStartComment = child.prev;
-        const ieConditionalEndComment = child.firstChild;
-
-        // ieConditionalStartComment
-        node.removeChild(ieConditionalStartComment);
-        i--; // because a node was removed
-
-        const startSourceSpan = new ParseSourceSpan(
-          ieConditionalStartComment.sourceSpan.start,
-          ieConditionalEndComment.sourceSpan.end,
-        );
-        const sourceSpan = new ParseSourceSpan(
-          startSourceSpan.start,
-          child.sourceSpan.end,
-        );
-
-        child.condition = ieConditionalStartComment.condition;
-        child.sourceSpan = sourceSpan;
-        child.startSourceSpan = startSourceSpan;
-        child.removeChild(ieConditionalEndComment);
       }
     }
   });

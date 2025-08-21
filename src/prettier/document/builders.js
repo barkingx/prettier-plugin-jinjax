@@ -14,7 +14,6 @@ import {
   assertDocFillParts,
 } from "./utils/assert-doc.js";
 
-
 /**
  * @param {Doc} contents
  * @returns Doc

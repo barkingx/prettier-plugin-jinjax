@@ -28,11 +28,7 @@ function genericPrint(path, options, print) {
       }
       return [group(printChildren(path, options, print)), hardline];
     case "element":
-    case "ieConditionalComment":
       return printElement(path, options, print);
-    case "ieConditionalStartComment":
-    case "ieConditionalEndComment":
-      return [printOpeningTagStart(node), printClosingTagEnd(node)];
     case "interpolation":
       return [
         printOpeningTagStart(node, options),

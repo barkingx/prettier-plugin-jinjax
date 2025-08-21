@@ -10,7 +10,6 @@ import {
 import createError from "../common/parser-create-error.js";
 import parseFrontMatter from "../utils/front-matter/parse.js";
 import { Node } from "./ast.js";
-import { parseIeConditionalComment } from "./conditional-comment.js";
 import { locEnd, locStart } from "./loc.js";
 import { hasIgnorePragma, hasPragma } from "./pragma.js";
 import isUnknownNamespace from "./utils/is-unknown-namespace.js";
