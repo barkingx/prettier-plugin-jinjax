@@ -3,7 +3,6 @@ import { replaceEndOfLine } from "../document/utils.js";
 import getPreferredQuote from "../utils/get-preferred-quote.js";
 import UnexpectedNodeError from "../utils/unexpected-node-error.js";
 import clean from "./clean.js";
-import embed from "./embed.js";
 import getVisitorKeys from "./get-visitor-keys.js";
 import { locEnd, locStart } from "./loc.js";
 import { insertPragma } from "./pragma.js";
@@ -110,7 +109,6 @@ const printer = {
   print: genericPrint,
   insertPragma,
   massageAstNode: clean,
-  embed,
   getVisitorKeys,
 };
 

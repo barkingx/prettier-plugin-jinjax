@@ -1,12 +1,7 @@
-/**
- * @import AstPath from "../../common/ast-path.js"
- */
-
 import { hardline, join, line } from "../../document/builders.js";
 import { replaceEndOfLine } from "../../document/utils.js";
 import isFrontMatter from "../../utils/front-matter/is-front-matter.js";
 import htmlWhitespaceUtils from "../../utils/html-whitespace-utils.js";
-import inferParser from "../../utils/infer-parser.js";
 import {
   CSS_DISPLAY_DEFAULT,
   CSS_DISPLAY_TAGS,
@@ -304,71 +299,6 @@ function getLastDescendant(node) {
 function hasNonTextChild(node) {
   return node.children?.some((child) => child.type !== "text");
 }
-
-function inferParserByTypeAttribute(type) {
-  if (!type) {
-    return;
-  }
-
-  switch (type) {
-    case "module":
-    case "text/javascript":
-    case "text/babel":
-    case "text/jsx":
-    case "application/javascript":
-      return "babel";
-
-    case "application/x-typescript":
-      return "typescript";
-
-    case "text/markdown":
-      return "markdown";
-
-    case "text/html":
-      return "html";
-
-    case "text/x-handlebars-template":
-      return "glimmer";
-
-    default:
-      if (
-        type.endsWith("json") ||
-        type.endsWith("importmap") ||
-        type === "speculationrules"
-      ) {
-        return "json";
-      }
-  }
-}
-
-function inferScriptParser(node, options) {
-  const { name, attrMap } = node;
-
-  if (name !== "script" || Object.hasOwn(attrMap, "src")) {
-    return;
-  }
-
-  const { type, lang } = node.attrMap;
-
-  if (!lang && !type) {
-    return "babel";
-  }
-
-  return (
-    inferParser(options, { language: lang }) ?? inferParserByTypeAttribute(type)
-  );
-}
-function inferStyleParser(node, options) {
-  if (node.name === "style") {
-    const { lang } = node.attrMap;
-    return lang ? inferParser(options, { language: lang }) : "css";
-  }
-}
-
-function inferElementParser(node, options) {
-  return inferScriptParser(node, options) ?? inferStyleParser(node, options);
-}
-
 function isBlockLikeCssDisplay(cssDisplay) {
   return (
     cssDisplay === "block" ||
@@ -500,11 +430,6 @@ function dedentString(text, minIndent = getMinIndentation(text)) {
 function unescapeQuoteEntities(text) {
   return text.replaceAll("&apos;", "'").replaceAll("&quot;", '"');
 }
-
-function getUnescapedAttributeValue(node) {
-  return unescapeQuoteEntities(node.value);
-}
-
 function getTextValueParts(node, value = node.value) {
   return node.parent.isWhitespaceSensitive
     ? node.parent.isIndentationSensitive
@@ -525,10 +450,8 @@ export {
   getLeadingAndTrailingHtmlWhitespace,
   getNodeCssStyleDisplay,
   getTextValueParts,
-  getUnescapedAttributeValue,
   hasPrettierIgnore,
   htmlTrimPreserveIndentation,
-  inferElementParser,
   isDanglingSpaceSensitiveNode,
   isIndentationSensitiveNode,
   isLeadingSpaceSensitiveNode,

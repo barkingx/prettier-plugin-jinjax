@@ -14,18 +14,6 @@ import {
   assertDocFillParts,
 } from "./utils/assert-doc.js";
 
-/**
- * TBD properly tagged union for Doc object type is needed here.
- *
- * @typedef {object} DocObject
- * @property {string} type
- * @property {boolean} [hard]
- * @property {boolean} [literal]
- *
- * @typedef {Doc[]} DocArray
- *
- * @typedef {string | DocObject | DocArray} Doc
- */
 
 /**
  * @param {Doc} contents
@@ -72,14 +60,6 @@ function group(contents, opts = {}) {
  */
 function dedentToRoot(contents) {
   return align(Number.NEGATIVE_INFINITY, contents);
-}
-
-/**
- * @param {Doc} contents
- * @returns Doc
- */
-function markAsRoot(contents) {
-  return align({ type: "root" }, contents);
 }
 /**
  * @param {Doc[]} parts
@@ -178,6 +158,5 @@ export {
   line,
   literalline,
   literallineWithoutBreakParent,
-  markAsRoot,
   softline,
 };
