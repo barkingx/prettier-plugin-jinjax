@@ -124,14 +124,6 @@ class Node {
   }
 
   get #childrenProperty() {
-    if (this.type === "angularIcuCase") {
-      return "expression";
-    }
-
-    if (this.type === "angularIcuExpression") {
-      return "cases";
-    }
-
     return "children";
   }
 

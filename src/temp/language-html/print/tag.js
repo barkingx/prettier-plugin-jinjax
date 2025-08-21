@@ -99,8 +99,6 @@ function printClosingTagEndMarker(node, options) {
       return "]><!-->";
     case "interpolation":
       return "}}";
-    case "angularIcuExpression":
-      return "}";
     case "element":
       if (node.isSelfClosing) {
         return "/>";
@@ -132,7 +130,6 @@ function needsToBorrowPrevClosingTagEndMarker(node) {
   return (
     node.prev &&
     node.prev.type !== "docType" &&
-    node.type !== "angularControlFlowBlock" &&
     !isTextLikeNode(node.prev) &&
     node.isLeadingSpaceSensitive &&
     !node.hasLeadingSpaces
@@ -366,8 +363,6 @@ function printOpeningTagStartMarker(node, options) {
       );
     }
 
-    case "angularIcuExpression":
-      return "{";
     case "element":
       if (node.condition) {
         return `<!--[if ${node.condition}]><!--><${node.rawName}`;

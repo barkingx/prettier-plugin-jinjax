@@ -14,15 +14,13 @@ const ignoredProperties = new Set([
   "expSourceSpan",
   "valueSourceSpan",
 ]);
-
-const embeddedAngularControlFlowBlocks = new Set([
+new Set([
   "if",
   "else if",
   "for",
   "switch",
   "case",
 ]);
-
 function clean(original, cloned) {
   if (original.type === "text" || original.type === "comment") {
     return null;
@@ -42,27 +40,6 @@ function clean(original, cloned) {
   }
 
   if (original.type === "docType") {
-    delete cloned.value;
-  }
-
-  if (
-    original.type === "angularControlFlowBlock" &&
-    original.parameters?.children
-  ) {
-    for (const parameter of cloned.parameters.children) {
-      if (embeddedAngularControlFlowBlocks.has(original.name)) {
-        delete parameter.expression;
-      } else {
-        parameter.expression = parameter.expression.trim();
-      }
-    }
-  }
-
-  if (original.type === "angularIcuExpression") {
-    cloned.switchValue = original.switchValue.trim();
-  }
-
-  if (original.type === "angularLetDeclarationInitializer") {
     delete cloned.value;
   }
 }

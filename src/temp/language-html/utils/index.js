@@ -137,7 +137,7 @@ function isLeadingSpaceSensitiveNode(node, options) {
   return isLeadingSpaceSensitive;
 
   function _isLeadingSpaceSensitiveNode() {
-    if (isFrontMatter(node) || node.type === "angularControlFlowBlock") {
+    if (isFrontMatter(node)) {
       return false;
     }
 
@@ -179,7 +179,7 @@ function isLeadingSpaceSensitiveNode(node, options) {
 }
 
 function isTrailingSpaceSensitiveNode(node, options) {
-  if (isFrontMatter(node) || node.type === "angularControlFlowBlock") {
+  if (isFrontMatter(node)) {
     return false;
   }
 

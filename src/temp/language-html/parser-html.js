@@ -5,95 +5,17 @@ import {
   ParseSourceFile,
   ParseSourceSpan,
   RecursiveVisitor,
-  TagContentType,
   visitAll,
 } from "angular-html-parser";
 import createError from "../common/parser-create-error.js";
 import parseFrontMatter from "../utils/front-matter/parse.js";
-import isNonEmptyArray from "../utils/is-non-empty-array.js";
-import { Node } from "./ast.js";
-import { parseIeConditionalComment } from "./conditional-comment.js";
-import { locEnd, locStart } from "./loc.js";
-import { hasIgnorePragma, hasPragma } from "./pragma.js";
+import {Node} from "./ast.js";
+import {parseIeConditionalComment} from "./conditional-comment.js";
+import {locEnd, locStart} from "./loc.js";
+import {hasIgnorePragma, hasPragma} from "./pragma.js";
 import HTML_ELEMENT_ATTRIBUTES from "./utils/html-elements-attributes.evaluate.js";
 import HTML_TAGS from "./utils/html-tags.evaluate.js";
 import isUnknownNamespace from "./utils/is-unknown-namespace.js";
-
-/**
- * @import AngularHtmlParser, {ParseOptions as AngularHtmlParserParseOptions} from "angular-html-parser"
- * @import {Node as AstNode, Attribute, Element} from "angular-html-parser/lib/compiler/src/ml_parser/ast.js"
- * @import {ParseTreeResult} from "angular-html-parser/lib/compiler/src/ml_parser/parser.js"
- */
-
-/**
- * @typedef {AngularHtmlParserParseOptions & {
- *   name: 'html';
- *   normalizeTagName?: boolean;
- *   normalizeAttributeName?: boolean;
- *   shouldParseAsRawText?: (tagName: string, prefix: string, hasParent: boolean, attrs: Array<{
- *      prefix: string;
- *      name: string;
- *      value?: string;
- *   }>) => boolean;
- * }} ParseOptions
- * @typedef {{filepath?: string}} Options
- */
-
-// `@else    if`
-function normalizeAngularControlFlowBlock(node) {
-  if (node.type !== "block") {
-    return;
-  }
-
-  node.name = node.name.toLowerCase().replaceAll(/\s+/gu, " ").trim();
-  node.type = "angularControlFlowBlock";
-
-  if (!isNonEmptyArray(node.parameters)) {
-    delete node.parameters;
-    return;
-  }
-
-  for (const parameter of node.parameters) {
-    parameter.type = "angularControlFlowBlockParameter";
-  }
-
-  node.parameters = {
-    type: "angularControlFlowBlockParameters",
-    children: node.parameters,
-    sourceSpan: new ParseSourceSpan(
-      node.parameters[0].sourceSpan.start,
-      node.parameters.at(-1).sourceSpan.end,
-    ),
-  };
-}
-
-function normalizeAngularLetDeclaration(node) {
-  if (node.type !== "letDeclaration") {
-    return;
-  }
-
-  // Similar to `VariableDeclarator` in estree
-  node.type = "angularLetDeclaration";
-  node.id = node.name;
-  node.init = {
-    type: "angularLetDeclarationInitializer",
-    sourceSpan: new ParseSourceSpan(node.valueSpan.start, node.valueSpan.end),
-    value: node.value,
-  };
-
-  delete node.name;
-  delete node.value;
-}
-
-function normalizeAngularIcuExpression(node) {
-  if (node.type === "plural" || node.type === "select") {
-    node.clause = node.type;
-    node.type = "angularIcuExpression";
-  }
-  if (node.type === "expansionCase") {
-    node.type = "angularIcuCase";
-  }
-}
 
 /**
  * @param {string} input
@@ -108,19 +30,13 @@ function ngHtmlParser(input, parseOptions, options) {
     normalizeAttributeName = false,
     allowHtmComponentClosingTags = false,
     isTagNameCaseSensitive = false,
-    shouldParseAsRawText,
   } = parseOptions;
 
   let { rootNodes, errors } = parseHtml(input, {
     canSelfClose,
     allowHtmComponentClosingTags,
     isTagNameCaseSensitive,
-    getTagContentType: shouldParseAsRawText
-      ? (...args) =>
-          shouldParseAsRawText(...args) ? TagContentType.RAW_TEXT : undefined
-      : undefined,
-    tokenizeAngularBlocks: undefined,
-    tokenizeAngularLetDeclaration: undefined,
+    getTagContentType: undefined,
   });
 
   if (errors.length > 0) {
@@ -137,11 +53,10 @@ function ngHtmlParser(input, parseOptions, options) {
     const rawName = node.nameSpan.toString();
     const hasExplicitNamespace =
       namespace !== null && rawName.startsWith(`${namespace}:`);
-    const name = hasExplicitNamespace
+
+    node.name = hasExplicitNamespace
       ? rawName.slice(namespace.length + 1)
       : rawName;
-
-    node.name = name;
     node.namespace = namespace;
     node.hasExplicitNamespace = hasExplicitNamespace;
   };
@@ -345,10 +260,6 @@ function parse(
         node.parent.replaceChild(node, ieConditionalComment);
       }
     }
-
-    normalizeAngularControlFlowBlock(node);
-    normalizeAngularLetDeclaration(node);
-    normalizeAngularIcuExpression(node);
   });
 
   return ast;
