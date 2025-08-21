@@ -10,7 +10,6 @@ import {
 } from "angular-html-parser";
 import createError from "../common/parser-create-error.js";
 import parseFrontMatter from "../utils/front-matter/parse.js";
-import inferParser from "../utils/infer-parser.js";
 import isNonEmptyArray from "../utils/is-non-empty-array.js";
 import { Node } from "./ast.js";
 import { parseIeConditionalComment } from "./conditional-comment.js";
@@ -28,7 +27,7 @@ import isUnknownNamespace from "./utils/is-unknown-namespace.js";
 
 /**
  * @typedef {AngularHtmlParserParseOptions & {
- *   name: 'html' | 'angular' | 'vue' | 'lwc' | 'mjml';
+ *   name: 'html' | 'angular' | 'lwc' | 'mjml';
  *   normalizeTagName?: boolean;
  *   normalizeAttributeName?: boolean;
  *   shouldParseAsRawText?: (tagName: string, prefix: string, hasParent: boolean, attrs: Array<{
@@ -123,53 +122,6 @@ function ngHtmlParser(input, parseOptions, options) {
     tokenizeAngularBlocks: name === "angular" ? true : undefined,
     tokenizeAngularLetDeclaration: name === "angular" ? true : undefined,
   });
-
-  if (name === "vue") {
-    const isHtml = rootNodes.some(
-      (node) =>
-        (node.type === "docType" && node.value === "html") ||
-        (node.type === "element" && node.name.toLowerCase() === "html"),
-    );
-
-    // If not Vue SFC, treat as html
-    if (isHtml) {
-      return ngHtmlParser(input, HTML_PARSE_OPTIONS, options);
-    }
-
-    /** @type {ParseTreeResult | undefined} */
-    let secondParseResult;
-    const getHtmlParseResult = () =>
-      (secondParseResult ??= parseHtml(input, {
-        canSelfClose,
-        allowHtmComponentClosingTags,
-        isTagNameCaseSensitive,
-      }));
-
-    const getNodeWithSameLocation = (node) =>
-      getHtmlParseResult().rootNodes.find(
-        ({ startSourceSpan }) =>
-          startSourceSpan &&
-          startSourceSpan.start.offset === node.startSourceSpan.start.offset,
-      ) ?? node;
-    for (const [index, node] of rootNodes.entries()) {
-      const { endSourceSpan, startSourceSpan } = node;
-      const isVoidElement = endSourceSpan === null;
-      if (isVoidElement) {
-        errors = getHtmlParseResult().errors;
-        rootNodes[index] = getNodeWithSameLocation(node);
-      } else if (shouldParseVueRootNodeAsHtml(node, options)) {
-        const error = getHtmlParseResult().errors.find(
-          (error) =>
-            error.span.start.offset > startSourceSpan.start.offset &&
-            error.span.start.offset < endSourceSpan.end.offset,
-        );
-        if (error) {
-          throwParseError(error);
-        }
-        rootNodes[index] = getNodeWithSameLocation(node);
-      }
-    }
-  }
 
   if (errors.length > 0) {
     throwParseError(errors[0]);
@@ -313,15 +265,6 @@ function ngHtmlParser(input, parseOptions, options) {
 
   return rootNodes;
 }
-
-function shouldParseVueRootNodeAsHtml(node, options) {
-  if (node.type !== "element" || node.name !== "template") {
-    return false;
-  }
-  const language = node.attrs.find((attr) => attr.name === "lang")?.value;
-  return !language || inferParser(options, { language }) === "html";
-}
-
 function throwParseError(error) {
   const {
     msg,
@@ -455,24 +398,6 @@ export const mjml = createParser({
 });
 // Angular
 export const angular = createParser({ name: "angular" });
-// Vue
-export const vue = createParser({
-  name: "vue",
-  isTagNameCaseSensitive: true,
-  shouldParseAsRawText(tagName, prefix, hasParent, attrs) {
-    return (
-      tagName.toLowerCase() !== "html" &&
-      !hasParent &&
-      (tagName !== "template" ||
-        attrs.some(
-          ({ name, value }) =>
-            name === "lang" &&
-            value !== "html" &&
-            value !== "" &&
-            value !== undefined,
-        ))
-    );
-  },
-});
+
 // Lightning Web Components
 export const lwc = createParser({ name: "lwc", canSelfClose: false });

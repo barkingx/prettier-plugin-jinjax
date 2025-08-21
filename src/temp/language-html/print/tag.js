@@ -18,7 +18,6 @@ import {
   hasPrettierIgnore,
   isPreLikeNode,
   isTextLikeNode,
-  isVueSfcBlock,
   shouldPreserveContent,
 } from "../utils/index.js";
 
@@ -116,7 +115,7 @@ function shouldNotPrintClosingTag(node, options) {
   return (
     !node.isSelfClosing &&
     !node.endSourceSpan &&
-    (hasPrettierIgnore(node) || shouldPreserveContent(node.parent, options))
+    (hasPrettierIgnore(node) || shouldPreserveContent(node.parent))
   );
 }
 
@@ -261,8 +260,7 @@ function printAttributes(path, options, print) {
 
   const shouldPrintAttributePerLine =
     options.singleAttributePerLine &&
-    node.attrs.length > 1 &&
-    !isVueSfcBlock(node, options);
+    node.attrs.length > 1;
   const attributeLine = shouldPrintAttributePerLine ? hardline : line;
 
   /** @type {Doc[]} */

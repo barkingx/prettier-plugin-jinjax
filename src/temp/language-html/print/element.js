@@ -13,7 +13,6 @@ import getNodeContent from "../get-node-content.js";
 import {
   forceBreakContent,
   isScriptLikeTag,
-  isVueCustomBlock,
   shouldPreserveContent,
 } from "../utils/index.js";
 import { printChildren } from "./children.js";
@@ -29,7 +28,7 @@ import {
 function printElement(path, options, print) {
   const { node } = path;
 
-  if (shouldPreserveContent(node, options)) {
+  if (shouldPreserveContent(node)) {
     return [
       printOpeningTagPrefix(node, options),
       group(printOpeningTag(path, options, print)),
@@ -80,12 +79,7 @@ function printElement(path, options, print) {
     if (shouldHugContent) {
       return indentIfBreak(childrenDoc, { groupId: attrGroupId });
     }
-    if (
-      (isScriptLikeTag(node, options) || isVueCustomBlock(node, options)) &&
-      node.parent.type === "root" &&
-      options.parser === "vue" &&
-      !options.vueIndentScriptAndStyle
-    ) {
+    if (isScriptLikeTag(node, options) && node.parent.type === "root") {
       return childrenDoc;
     }
     return indent(childrenDoc);

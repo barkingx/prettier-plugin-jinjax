@@ -4,7 +4,6 @@ import printAngularAttribute from "./angular-attributes.js";
 import printClassNames from "./class-names.js";
 import printSrcset from "./srcset.js";
 import { printStyleAttribute } from "./style.js";
-import printVueAttribute from "./vue-attributes.js";
 
 /**
  * @import {Doc} from "../../document/builders.js"
@@ -37,7 +36,6 @@ function printAttribute(path, options) {
     printSrcset,
     printStyleAttribute,
     printClassNames,
-    printVueAttribute,
     printAngularAttribute,
   ]) {
     const printValue = getValuePrinter(path, options);

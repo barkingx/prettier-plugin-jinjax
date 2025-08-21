@@ -22,9 +22,7 @@ import {
   htmlTrimPreserveIndentation,
   inferElementParser,
   isScriptLikeTag,
-  isVueNonHtmlBlock,
 } from "./utils/index.js";
-import isVueSfcWithTypescriptScript from "./utils/is-vue-sfc-with-typescript-script.js";
 
 const embeddedAngularControlFlowBlocks = new Set([
   "if",
@@ -44,7 +42,7 @@ function embed(path, options) {
         return;
       }
 
-      if (!node.isSelfClosing && isVueNonHtmlBlock(node, options)) {
+      if (!node.isSelfClosing) {
         const parser = inferElementParser(node, options);
         if (!parser) {
           return;
@@ -116,13 +114,6 @@ function embed(path, options) {
           };
           if (options.parser === "angular") {
             textToDocOptions.parser = "__ng_interpolation";
-          } else if (options.parser === "vue") {
-            textToDocOptions.parser = isVueSfcWithTypescriptScript(
-              path,
-              options,
-            )
-              ? "__vue_ts_expression"
-              : "__vue_expression";
           } else {
             textToDocOptions.parser = "__js_expression";
           }

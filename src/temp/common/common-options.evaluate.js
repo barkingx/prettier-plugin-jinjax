@@ -63,7 +63,7 @@ const options = {
     category: CATEGORY_COMMON,
     type: "boolean",
     default: false,
-    description: "Enforce single attribute per line in HTML, Vue and JSX.",
+    description: "Enforce single attribute per line in HTML and JSX.",
   },
 };
 
