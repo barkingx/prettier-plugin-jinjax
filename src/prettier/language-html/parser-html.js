@@ -13,24 +13,13 @@ import { locEnd, locStart } from "./loc.js";
 import { hasIgnorePragma, hasPragma } from "./pragma.js";
 /**
  * @param {string} input
- * @param {ParseOptions} parseOptions
  */
-function ngHtmlParser(input, parseOptions) {
-  const {
-    canSelfClose = true,
-    allowHtmComponentClosingTags = false,
-    isTagNameCaseSensitive = false,
-    shouldParseAsRawText,
-  } = parseOptions;
-
+function ngHtmlParser(input) {
   let { rootNodes, errors } = parseHtml(input, {
-    canSelfClose,
-    allowHtmComponentClosingTags,
-    isTagNameCaseSensitive,
-    getTagContentType: shouldParseAsRawText
-      ? (...args) =>
-          shouldParseAsRawText(...args) ? TagContentType.RAW_TEXT : undefined
-      : undefined,
+    canSelfClose: true,
+    allowHtmComponentClosingTags: true,
+    isTagNameCaseSensitive: true,
+    getTagContentType: () => TagContentType.RAW_TEXT,
   });
 
   if (errors.length > 0) {
@@ -55,16 +44,10 @@ function throwParseError(error) {
 
 /**
  * @param {string} text
- * @param {ParseOptions} parseOptions
  * @param {Options} options
  * @param {boolean} shouldParseFrontMatter
  */
-function parse(
-  text,
-  parseOptions,
-  options = {},
-  shouldParseFrontMatter = true,
-) {
+function parse(text, options = {}, shouldParseFrontMatter = true) {
   const { frontMatter, content } = shouldParseFrontMatter
     ? parseFrontMatter(text)
     : { frontMatter: null, content: text };
@@ -75,7 +58,7 @@ function parse(
   const rawAst = {
     type: "root",
     sourceSpan: new ParseSourceSpan(start, end),
-    children: ngHtmlParser(content, parseOptions),
+    children: ngHtmlParser(content),
   };
 
   if (frontMatter) {
@@ -91,12 +74,7 @@ function parse(
   const parseSubHtml = (subContent, startSpan) => {
     const { offset } = startSpan;
     const fakeContent = text.slice(0, offset).replaceAll(/[^\n\r]/gu, " ");
-    const subAst = parse(
-      fakeContent + subContent,
-      parseOptions,
-      options,
-      false,
-    );
+    const subAst = parse(fakeContent + subContent, options, false);
 
     subAst.sourceSpan = new ParseSourceSpan(
       startSpan,
@@ -130,27 +108,11 @@ function parse(
   return ast;
 }
 
-/**
- * @param {ParseOptions} parseOptions
- */
-function createParser(parseOptions) {
-  return {
-    parse: (text, options) => parse(text, parseOptions, options),
-    hasPragma,
-    hasIgnorePragma,
-    astFormat: "html",
-    locStart,
-    locEnd,
-  };
-}
-
-/** @type {ParseOptions} */
-const HTML_PARSE_OPTIONS = {
-  name: "html",
-  normalizeTagName: true,
-  normalizeAttributeName: true,
-  allowHtmComponentClosingTags: true,
+export default {
+  parse,
+  hasPragma,
+  hasIgnorePragma,
+  astFormat: "html",
+  locStart,
+  locEnd,
 };
-
-// HTML
-export const html = createParser(HTML_PARSE_OPTIONS);

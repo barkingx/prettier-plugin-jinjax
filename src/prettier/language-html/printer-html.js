@@ -110,7 +110,7 @@ function genericPrint(path, options, print) {
   }
 }
 
-const printer = {
+export default {
   preprocess,
   print: genericPrint,
   insertPragma,
@@ -118,5 +118,3 @@ const printer = {
   embed,
   getVisitorKeys,
 };
-
-export default printer;
