@@ -36,7 +36,7 @@ function removeIgnorableFirstLf(ast /*, options */) {
   ast.walk((node) => {
     if (
       node.type === "element" &&
-      // node.tagDefinition.ignoreFirstLf &&
+      node.tagDefinition.ignoreFirstLf &&
       node.children.length > 0 &&
       node.children[0].type === "text" &&
       node.children[0].value[0] === "\n"
@@ -189,7 +189,7 @@ function extractInterpolation(ast, options) {
 
   const interpolationRegex = /\{\{(.+?)\}\}/su;
   ast.walk((node) => {
-    if (!canHaveInterpolation(node)) {
+    if (!canHaveInterpolation(node, options)) {
       return;
     }
 
@@ -252,7 +252,7 @@ function extractInterpolation(ast, options) {
  * - add `isWhitespaceSensitive`, `isIndentationSensitive` field for text nodes
  * - remove insensitive whitespaces
  */
-function extractWhitespaces(ast) {
+function extractWhitespaces(ast, options) {
   ast.walk((node) => {
     const children = node.$children;
 
@@ -271,7 +271,7 @@ function extractWhitespaces(ast) {
       return;
     }
 
-    const isWhitespaceSensitive = isWhitespaceSensitiveNode(node);
+    const isWhitespaceSensitive = isWhitespaceSensitiveNode(node, options);
     const isIndentationSensitive = isIndentationSensitiveNode(node);
 
     if (!isWhitespaceSensitive) {
@@ -332,7 +332,7 @@ function addIsSelfClosing(ast /*, options */) {
     node.isSelfClosing =
       !node.children ||
       (node.type === "element" &&
-        (node.tagDefinition?.isVoid ||
+        (node.tagDefinition.isVoid ||
           // self-closing
           (node.endSourceSpan &&
             node.startSourceSpan.start === node.endSourceSpan.start &&
@@ -368,19 +368,28 @@ function addCssDisplay(ast, options) {
  * - add `isTrailingSpaceSensitive` field
  * - add `isDanglingSpaceSensitive` field for parent nodes
  */
-function addIsSpaceSensitive(ast) {
+function addIsSpaceSensitive(ast, options) {
   ast.walk((node) => {
     const { children } = node;
     if (!children) {
       return;
     }
     if (children.length === 0) {
-      node.isDanglingSpaceSensitive = isDanglingSpaceSensitiveNode(node);
+      node.isDanglingSpaceSensitive = isDanglingSpaceSensitiveNode(
+        node,
+        options,
+      );
       return;
     }
     for (const child of children) {
-      child.isLeadingSpaceSensitive = isLeadingSpaceSensitiveNode(child);
-      child.isTrailingSpaceSensitive = isTrailingSpaceSensitiveNode(child);
+      child.isLeadingSpaceSensitive = isLeadingSpaceSensitiveNode(
+        child,
+        options,
+      );
+      child.isTrailingSpaceSensitive = isTrailingSpaceSensitiveNode(
+        child,
+        options,
+      );
     }
     for (let index = 0; index < children.length; index++) {
       const child = children[index];

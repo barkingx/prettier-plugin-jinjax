@@ -36,6 +36,9 @@ importers:
       eslint-config-prettier:
         specifier: ^10.1.8
         version: 10.1.8(eslint@9.33.0)
+      html-element-attributes:
+        specifier: 3.5.0
+        version: 3.5.0
       pnpm:
         specifier: ^10.14.0
         version: 10.14.0
@@ -267,6 +270,9 @@ packages:
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
     engines: {node: '>=8'}
+
+  html-element-attributes@3.5.0:
+    resolution: {integrity: sha512-rU2BFhp0kQla9sqPBI46C+zbP6PFOtD7z6XNAJ6as+cGecCDXLx0W3aIs6XdPLmBBG/Fy1meRi/n65Exofz4Qw==}
 
   html-ua-styles@0.0.9:
     resolution: {integrity: sha512-BbQne7anzzSsc2OZHNFJaU03PpxjkkwYRgSzMhJsJI88VekU62RKfpNnPg5cpQCUAQuOBdaE7gBidR4DDawZZw==}
@@ -643,6 +649,8 @@ snapshots:
   globals@14.0.0: {}
 
   has-flag@4.0.0: {}
+
+  html-element-attributes@3.5.0: {}
 
   html-ua-styles@0.0.9: {}
 
