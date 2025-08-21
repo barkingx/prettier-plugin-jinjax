@@ -55,17 +55,12 @@ function shouldPreserveContent(node) {
     return true;
   }
 
-  // TODO: handle non-text children in <pre>
-  if (
+  return (
     isPreLikeNode(node) &&
     node.children.some(
       (child) => child.type !== "text" && child.type !== "interpolation",
     )
-  ) {
-    return true;
-  }
-
-  return false;
+  );
 }
 
 function hasPrettierIgnore(node) {
@@ -73,16 +68,13 @@ function hasPrettierIgnore(node) {
   if (node.type === "attribute") {
     return false;
   }
-
   /* c8 ignore next 3 */
   if (!node.parent) {
     return false;
   }
-
   if (!node.prev) {
     return false;
   }
-
   return isPrettierIgnore(node.prev);
 }
 
@@ -167,14 +159,9 @@ function isLeadingSpaceSensitiveNode(node) {
       return false;
     }
 
-    if (
-      node.prev &&
-      !isNextLeadingSpaceSensitiveCssDisplay(node.prev.cssDisplay)
-    ) {
-      return false;
-    }
-
-    return true;
+    return !(
+      node.prev && !isNextLeadingSpaceSensitiveCssDisplay(node.prev.cssDisplay)
+    );
   }
 }
 
@@ -209,14 +196,9 @@ function isTrailingSpaceSensitiveNode(node) {
     return false;
   }
 
-  if (
-    node.next &&
-    !isPrevTrailingSpaceSensitiveCssDisplay(node.next.cssDisplay)
-  ) {
-    return false;
-  }
-
-  return true;
+  return !(
+    node.next && !isPrevTrailingSpaceSensitiveCssDisplay(node.next.cssDisplay)
+  );
 }
 
 function isDanglingSpaceSensitiveNode(node) {

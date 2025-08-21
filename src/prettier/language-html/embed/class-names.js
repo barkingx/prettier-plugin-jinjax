@@ -1,10 +1,9 @@
 import { getUnescapedAttributeValue } from "../utils/index.js";
 
 function printClassNames(path, options) {
-  const { node } = path;
-  const value = getUnescapedAttributeValue(node);
+  const value = getUnescapedAttributeValue(path.node);
   if (
-    node.fullName === "class" &&
+    path.node.fullName === "class" &&
     !options.parentParser &&
     !value.includes("{{")
   ) {

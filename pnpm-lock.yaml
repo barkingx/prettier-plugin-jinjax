@@ -7,9 +7,6 @@ settings:
 importers:
   .:
     dependencies:
-      "@prettier/html-tags":
-        specifier: 1.1.0
-        version: 1.1.0
       angular-html-parser:
         specifier: 8.1.0
         version: 8.1.0
@@ -19,9 +16,6 @@ importers:
       html-ua-styles:
         specifier: 0.0.9
         version: 0.0.9
-      linguist-languages:
-        specifier: 8.1.0
-        version: 8.1.0
       n-readlines:
         specifier: 1.0.1
         version: 1.0.1
@@ -44,9 +38,6 @@ importers:
       eslint-config-prettier:
         specifier: ^10.1.8
         version: 10.1.8(eslint@9.33.0)
-      html-element-attributes:
-        specifier: 3.5.0
-        version: 3.5.0
       pnpm:
         specifier: ^10.14.0
         version: 10.14.0
@@ -154,12 +145,6 @@ packages:
         integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==,
       }
     engines: { node: ">=18.18" }
-
-  "@prettier/html-tags@1.1.0":
-    resolution:
-      {
-        integrity: sha512-1kqO3DAPI9OiDJXd7ekt/0DUFbFo5Hw1jNgu7pYAKX0bc2l9BergqBAxDZPLBk3Az0wkrjJw+SD9bIog85r9wA==,
-      }
 
   "@prettier/parse-srcset@3.1.0":
     resolution:
@@ -449,12 +434,6 @@ packages:
       }
     engines: { node: ">=8" }
 
-  html-element-attributes@3.5.0:
-    resolution:
-      {
-        integrity: sha512-rU2BFhp0kQla9sqPBI46C+zbP6PFOtD7z6XNAJ6as+cGecCDXLx0W3aIs6XdPLmBBG/Fy1meRi/n65Exofz4Qw==,
-      }
-
   html-ua-styles@0.0.9:
     resolution:
       {
@@ -539,12 +518,6 @@ packages:
         integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==,
       }
     engines: { node: ">= 0.8.0" }
-
-  linguist-languages@8.1.0:
-    resolution:
-      {
-        integrity: sha512-mg7zk9Lz89MJYvie41yUTmgeMwhN53gKQigNU1i+1JAGNqGRvF59RLhhkKCRYfZLt3rVgWcVSRrj0fxug5R98A==,
-      }
 
   locate-path@6.0.0:
     resolution:
@@ -798,8 +771,6 @@ snapshots:
 
   "@humanwhocodes/retry@0.4.3": {}
 
-  "@prettier/html-tags@1.1.0": {}
-
   "@prettier/parse-srcset@3.1.0": {}
 
   "@types/estree@1.0.8": {}
@@ -966,8 +937,6 @@ snapshots:
 
   has-flag@4.0.0: {}
 
-  html-element-attributes@3.5.0: {}
-
   html-ua-styles@0.0.9: {}
 
   ignore@5.3.2: {}
@@ -1005,8 +974,6 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
-
-  linguist-languages@8.1.0: {}
 
   locate-path@6.0.0:
     dependencies:

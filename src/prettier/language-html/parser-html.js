@@ -13,7 +13,6 @@ import { Node } from "./ast.js";
 import { parseIeConditionalComment } from "./conditional-comment.js";
 import { locEnd, locStart } from "./loc.js";
 import { hasIgnorePragma, hasPragma } from "./pragma.js";
-import HTML_ELEMENT_ATTRIBUTES from "./utils/html-elements-attributes.evaluate.js";
 import isUnknownNamespace from "./utils/is-unknown-namespace.js";
 
 /**
@@ -31,9 +30,6 @@ function ngHtmlParser(input) {
 
   if (errors.length > 0) throwParseError(errors[0]);
 
-  /**
-   * @param {Attribute | Element} node
-   */
   const restoreName = (node) => {
     const namespace = node.name.startsWith(":")
       ? node.name.slice(1).split(":")[0]
@@ -49,9 +45,6 @@ function ngHtmlParser(input) {
     node.hasExplicitNamespace = hasExplicitNamespace;
   };
 
-  /**
-   * @param {AstNode} node
-   */
   const restoreNameAndValue = (node) => {
     switch (node.type) {
       case "element":
@@ -76,26 +69,6 @@ function ngHtmlParser(input) {
       case "text":
         node.value = node.sourceSpan.toString();
         break;
-      // No default
-    }
-  };
-  const lowerCaseIfFn = (text, fn) => {
-    const lowerCasedText = text.toLowerCase();
-    return fn(lowerCasedText) ? lowerCasedText : text;
-  };
-  const normalizeName = (node) => {
-    if (node.type === "element") {
-      for (const attr of node.attrs) {
-        if (!attr.namespace) {
-          attr.name = lowerCaseIfFn(
-            attr.name,
-            (lowerCasedAttrName) =>
-              HTML_ELEMENT_ATTRIBUTES.has(node.name) &&
-              (HTML_ELEMENT_ATTRIBUTES.get("*").has(lowerCasedAttrName) ||
-                HTML_ELEMENT_ATTRIBUTES.get(node.name).has(lowerCasedAttrName)),
-          );
-        }
-      }
     }
   };
   const fixSourceSpan = (node) => {
@@ -107,9 +80,6 @@ function ngHtmlParser(input) {
     }
   };
 
-  /**
-   * @param {AstNode} node
-   */
   const addTagDefinition = (node) => {
     if (node.type === "element") {
       const tagDefinition = getHtmlTagDefinition(
@@ -132,7 +102,6 @@ function ngHtmlParser(input) {
       visit(node) {
         restoreNameAndValue(node);
         addTagDefinition(node);
-        normalizeName(node);
         fixSourceSpan(node);
       }
     })(),
@@ -156,11 +125,6 @@ function throwParseError(error) {
   });
 }
 
-/**
- * @param {string} text
- * @param {Options} options
- * @param {boolean} shouldParseFrontMatter
- */
 function parse(text, options = {}, shouldParseFrontMatter = true) {
   const { frontMatter, content } = shouldParseFrontMatter
     ? parseFrontMatter(text)
@@ -222,7 +186,6 @@ function parse(text, options = {}, shouldParseFrontMatter = true) {
   return ast;
 }
 
-// HTML
 export const html = {
   parse: (text, options) => parse(text, options),
   hasPragma,

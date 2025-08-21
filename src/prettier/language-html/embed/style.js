@@ -2,10 +2,9 @@ import { getUnescapedAttributeValue } from "../utils/index.js";
 import { printExpand } from "./utils.js";
 
 function printStyleAttribute(path, options) {
-  const { node } = path;
   const text = getUnescapedAttributeValue(path.node).trim();
   if (
-    node.fullName === "style" &&
+    path.node.fullName === "style" &&
     !options.parentParser &&
     !text.includes("{{")
   ) {

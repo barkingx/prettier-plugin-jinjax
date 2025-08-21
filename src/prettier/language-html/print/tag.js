@@ -178,15 +178,12 @@ function needsToBorrowNextOpeningTagStartMarker(node) {
 
 function getPrettierIgnoreAttributeCommentData(value) {
   const match = value.trim().match(/^prettier-ignore-attribute(?:\s+(.+))?$/su);
-
   if (!match) {
     return false;
   }
-
   if (!match[1]) {
     return true;
   }
-
   return match[1].split(/\s+/u);
 }
 

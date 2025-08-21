@@ -1,15 +1,12 @@
 import {
   DOC_TYPE_ALIGN,
   DOC_TYPE_BREAK_PARENT,
-  DOC_TYPE_CURSOR,
   DOC_TYPE_FILL,
   DOC_TYPE_GROUP,
   DOC_TYPE_IF_BREAK,
   DOC_TYPE_INDENT,
   DOC_TYPE_INDENT_IF_BREAK,
-  DOC_TYPE_LABEL,
   DOC_TYPE_LINE,
-  DOC_TYPE_TRIM,
 } from "./constants.js";
 import {
   assertDoc,
@@ -82,7 +79,6 @@ function dedentToRoot(contents) {
  * @returns Doc
  */
 function markAsRoot(contents) {
-  // @ts-expect-error - TBD ???:
   return align({ type: "root" }, contents);
 }
 /**
@@ -132,7 +128,6 @@ function indentIfBreak(contents, opts) {
   };
 }
 const breakParent = { type: DOC_TYPE_BREAK_PARENT };
-const trim = { type: DOC_TYPE_TRIM };
 
 const hardlineWithoutBreakParent = { type: DOC_TYPE_LINE, hard: true };
 const literallineWithoutBreakParent = {
@@ -145,8 +140,6 @@ const line = { type: DOC_TYPE_LINE };
 const softline = { type: DOC_TYPE_LINE, soft: true };
 const hardline = [hardlineWithoutBreakParent, breakParent];
 const literalline = [literallineWithoutBreakParent, breakParent];
-
-const cursor = { type: DOC_TYPE_CURSOR };
 
 /**
  * @param {Doc} separator
@@ -169,21 +162,10 @@ function join(separator, docs) {
 
   return parts;
 }
-/**
- * Mark a doc with an arbitrary truthy value. This doesn't affect how the doc is printed, but can be useful for heuristics based on doc introspection.
- * @param {any} label If falsy, the `contents` doc is returned as is.
- * @param {Doc} contents
- */
-function label(label, contents) {
-  assertDoc(contents);
-
-  return label ? { type: DOC_TYPE_LABEL, label, contents } : contents;
-}
 
 export {
   align,
   breakParent,
-  cursor,
   dedentToRoot,
   fill,
   group,
@@ -193,11 +175,9 @@ export {
   indent,
   indentIfBreak,
   join,
-  label,
   line,
   literalline,
   literallineWithoutBreakParent,
   markAsRoot,
   softline,
-  trim,
 };

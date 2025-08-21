@@ -10,11 +10,7 @@ import { printStyleAttribute } from "./style.js";
  */
 
 function printAttribute(path, options) {
-  const { node } = path;
-
-  if (!node.value) {
-    return;
-  }
+  if (!path.node.value) return;
 
   for (const getValuePrinter of [
     printSrcset,

@@ -1,7 +1,3 @@
-/**
- * @import {Doc} from "../document/builders.js"
- */
-
 import { fill, group, hardline } from "../document/builders.js";
 import { replaceEndOfLine } from "../document/utils.js";
 import getPreferredQuote from "../utils/get-preferred-quote.js";
