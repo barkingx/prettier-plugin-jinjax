@@ -444,7 +444,7 @@ const HTML_PARSE_OPTIONS = {
 };
 
 // HTML
-export const html = createParser(HTML_PARSE_OPTIONS);
+export const html = createParser({...HTML_PARSE_OPTIONS, normalizeTagName: false});
 
 const MJML_RAW_TAGS = new Set(["mj-style", "mj-raw"]);
 // MJML https://mjml.io/

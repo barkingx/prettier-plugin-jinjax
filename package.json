@@ -28,10 +28,13 @@
     "prettier": "^3.6.2"
   },
   "dependencies": {
+    "@prettier/html-tags": "1.1.0",
     "angular-html-parser": "8.1.0",
     "escape-string-regexp": "5.0.0",
     "html-ua-styles": "0.0.9",
     "linguist-languages": "8.1.0",
+    "n-readlines": "1.0.1",
+    "to-fast-properties": "4.0.0",
     "trim-newlines": "5.0.0"
   }
 }
