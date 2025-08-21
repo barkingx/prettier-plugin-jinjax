@@ -171,18 +171,6 @@ function parse(text, options = {}, shouldParseFrontMatter = true) {
     return subAst;
   };
 
-  ast.walk((node) => {
-    if (node.type === "comment") {
-      const ieConditionalComment = parseIeConditionalComment(
-        node,
-        parseSubHtml,
-      );
-      if (ieConditionalComment) {
-        node.parent.replaceChild(node, ieConditionalComment);
-      }
-    }
-  });
-
   return ast;
 }
 
