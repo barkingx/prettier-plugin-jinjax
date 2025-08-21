@@ -108,7 +108,7 @@ function parse(text, options = {}, shouldParseFrontMatter = true) {
   return ast;
 }
 
-export default {
+export const html = {
   parse,
   hasPragma,
   hasIgnorePragma,
