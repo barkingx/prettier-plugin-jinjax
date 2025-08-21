@@ -14,34 +14,22 @@ import { parseIeConditionalComment } from "./conditional-comment.js";
 import { locEnd, locStart } from "./loc.js";
 import { hasIgnorePragma, hasPragma } from "./pragma.js";
 import HTML_ELEMENT_ATTRIBUTES from "./utils/html-elements-attributes.evaluate.js";
-import HTML_TAGS from "./utils/html-tags.evaluate.js";
 import isUnknownNamespace from "./utils/is-unknown-namespace.js";
 
 /**
  * @param {string} input
- * @param {ParseOptions} parseOptions
- * @param {Options} options
  */
-function ngHtmlParser(input, parseOptions, options) {
-  const {
-    name,
-    canSelfClose = true,
-    normalizeTagName = false,
-    normalizeAttributeName = false,
-    allowHtmComponentClosingTags = false,
-    isTagNameCaseSensitive = false,
-  } = parseOptions;
+function ngHtmlParser(input) {
+  const isTagNameCaseSensitive = true;
 
   let { rootNodes, errors } = parseHtml(input, {
-    canSelfClose,
-    allowHtmComponentClosingTags,
+    canSelfClose: true,
+    allowHtmComponentClosingTags: true,
     isTagNameCaseSensitive,
     getTagContentType: undefined,
   });
 
-  if (errors.length > 0) {
-    throwParseError(errors[0]);
-  }
+  if (errors.length > 0) throwParseError(errors[0]);
 
   /**
    * @param {Attribute | Element} node
@@ -91,42 +79,25 @@ function ngHtmlParser(input, parseOptions, options) {
       // No default
     }
   };
-
   const lowerCaseIfFn = (text, fn) => {
     const lowerCasedText = text.toLowerCase();
     return fn(lowerCasedText) ? lowerCasedText : text;
   };
   const normalizeName = (node) => {
     if (node.type === "element") {
-      if (
-        normalizeTagName &&
-        (!node.namespace ||
-          node.namespace === node.tagDefinition.implicitNamespacePrefix ||
-          isUnknownNamespace(node))
-      ) {
-        node.name = lowerCaseIfFn(node.name, (lowerCasedName) =>
-          HTML_TAGS.has(lowerCasedName),
-        );
-      }
-
-      if (normalizeAttributeName) {
-        for (const attr of node.attrs) {
-          if (!attr.namespace) {
-            attr.name = lowerCaseIfFn(
-              attr.name,
-              (lowerCasedAttrName) =>
-                HTML_ELEMENT_ATTRIBUTES.has(node.name) &&
-                (HTML_ELEMENT_ATTRIBUTES.get("*").has(lowerCasedAttrName) ||
-                  HTML_ELEMENT_ATTRIBUTES.get(node.name).has(
-                    lowerCasedAttrName,
-                  )),
-            );
-          }
+      for (const attr of node.attrs) {
+        if (!attr.namespace) {
+          attr.name = lowerCaseIfFn(
+            attr.name,
+            (lowerCasedAttrName) =>
+              HTML_ELEMENT_ATTRIBUTES.has(node.name) &&
+              (HTML_ELEMENT_ATTRIBUTES.get("*").has(lowerCasedAttrName) ||
+                HTML_ELEMENT_ATTRIBUTES.get(node.name).has(lowerCasedAttrName)),
+          );
         }
       }
     }
   };
-
   const fixSourceSpan = (node) => {
     if (node.sourceSpan && node.endSourceSpan) {
       node.sourceSpan = new ParseSourceSpan(
@@ -170,6 +141,7 @@ function ngHtmlParser(input, parseOptions, options) {
 
   return rootNodes;
 }
+
 function throwParseError(error) {
   const {
     msg,
@@ -186,16 +158,10 @@ function throwParseError(error) {
 
 /**
  * @param {string} text
- * @param {ParseOptions} parseOptions
  * @param {Options} options
  * @param {boolean} shouldParseFrontMatter
  */
-function parse(
-  text,
-  parseOptions,
-  options = {},
-  shouldParseFrontMatter = true,
-) {
+function parse(text, options = {}, shouldParseFrontMatter = true) {
   const { frontMatter, content } = shouldParseFrontMatter
     ? parseFrontMatter(text)
     : { frontMatter: null, content: text };
@@ -206,14 +172,13 @@ function parse(
   const rawAst = {
     type: "root",
     sourceSpan: new ParseSourceSpan(start, end),
-    children: ngHtmlParser(content, parseOptions, options),
+    children: ngHtmlParser(content),
   };
 
   if (frontMatter) {
     const start = new ParseLocation(file, 0, 0, 0);
     const end = start.moveBy(frontMatter.raw.length);
     frontMatter.sourceSpan = new ParseSourceSpan(start, end);
-    // @ts-expect-error -- not a real AstNode
     rawAst.children.unshift(frontMatter);
   }
 
@@ -222,23 +187,15 @@ function parse(
   const parseSubHtml = (subContent, startSpan) => {
     const { offset } = startSpan;
     const fakeContent = text.slice(0, offset).replaceAll(/[^\n\r]/gu, " ");
-    const realContent = subContent;
-    const subAst = parse(
-      fakeContent + realContent,
-      parseOptions,
-      options,
-      false,
-    );
-    // @ts-expect-error
+    const subAst = parse(fakeContent + subContent, options, false);
     subAst.sourceSpan = new ParseSourceSpan(
       startSpan,
-      // @ts-expect-error
       subAst.children.at(-1).sourceSpan.end,
     );
-    // @ts-expect-error
+
     const firstText = subAst.children[0];
     if (firstText.length === offset) {
-      /* c8 ignore next */ // @ts-expect-error
+      /* c8 ignore next */
       subAst.children.shift();
     } else {
       firstText.sourceSpan = new ParseSourceSpan(
@@ -265,30 +222,12 @@ function parse(
   return ast;
 }
 
-/**
- * @param {ParseOptions} parseOptions
- */
-function createParser(parseOptions) {
-  return {
-    parse: (text, options) => parse(text, parseOptions, options),
-    hasPragma,
-    hasIgnorePragma,
-    astFormat: "html",
-    locStart,
-    locEnd,
-  };
-}
-
-/** @type {ParseOptions} */
-const HTML_PARSE_OPTIONS = {
-  name: "html",
-  normalizeTagName: true,
-  normalizeAttributeName: true,
-  allowHtmComponentClosingTags: true,
-};
-
 // HTML
-export const html = createParser({
-  ...HTML_PARSE_OPTIONS,
-  normalizeTagName: false,
-});
+export const html = {
+  parse: (text, options) => parse(text, options),
+  hasPragma,
+  hasIgnorePragma,
+  astFormat: "html",
+  locStart,
+  locEnd,
+};

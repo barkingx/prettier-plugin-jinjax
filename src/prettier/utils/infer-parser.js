@@ -56,11 +56,7 @@ function getLanguageByLanguageName(languages, languageName) {
  * @returns {SupportLanguage | undefined}
  */
 function getLanguageByInterpreter(languages, file) {
-  if (
-    process.env.PRETTIER_TARGET === "universal" ||
-    !file ||
-    getFileBasename(file).includes(".")
-  ) {
+  if (!file || getFileBasename(file).includes(".")) {
     return;
   }
 

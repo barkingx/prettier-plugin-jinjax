@@ -30,7 +30,7 @@ function printElement(path, options, print) {
 
   if (shouldPreserveContent(node)) {
     return [
-      printOpeningTagPrefix(node, options),
+      printOpeningTagPrefix(node),
       group(printOpeningTag(path, options, print)),
       replaceEndOfLine(getNodeContent(node, options)),
       ...printClosingTag(node, options),
@@ -78,7 +78,7 @@ function printElement(path, options, print) {
     if (shouldHugContent) {
       return indentIfBreak(childrenDoc, { groupId: attrGroupId });
     }
-    if (isScriptLikeTag(node, options) && node.parent.type === "root") {
+    if (isScriptLikeTag(node) && node.parent.type === "root") {
       return childrenDoc;
     }
     return indent(childrenDoc);

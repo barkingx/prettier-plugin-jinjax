@@ -56,7 +56,7 @@ function genericPrint(path, options, print) {
         return [replaceEndOfLine(value), hasTrailingNewline ? hardline : ""];
       }
 
-      const prefix = printOpeningTagPrefix(node, options);
+      const prefix = printOpeningTagPrefix(node);
       const printed = getTextValueParts(node);
 
       const suffix = printClosingTagSuffix(node, options);
@@ -77,7 +77,7 @@ function genericPrint(path, options, print) {
       ];
     case "comment":
       return [
-        printOpeningTagPrefix(node, options),
+        printOpeningTagPrefix(node),
         replaceEndOfLine(
           options.originalText.slice(locStart(node), locEnd(node)),
         ),

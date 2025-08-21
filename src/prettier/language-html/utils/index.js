@@ -95,7 +95,7 @@ function isTextLikeNode(node) {
   return node.type === "text" || node.type === "comment";
 }
 
-function isScriptLikeTag(node, options) {
+function isScriptLikeTag(node) {
   return (
     node.type === "element" &&
     (node.fullName === "script" ||
@@ -107,13 +107,13 @@ function isScriptLikeTag(node, options) {
   );
 }
 
-function canHaveInterpolation(node, options) {
-  return node.children && !isScriptLikeTag(node, options);
+function canHaveInterpolation(node) {
+  return node.children && !isScriptLikeTag(node);
 }
 
-function isWhitespaceSensitiveNode(node, options) {
+function isWhitespaceSensitiveNode(node) {
   return (
-    isScriptLikeTag(node, options) ||
+    isScriptLikeTag(node) ||
     node.type === "interpolation" ||
     isIndentationSensitiveNode(node)
   );
@@ -123,7 +123,7 @@ function isIndentationSensitiveNode(node) {
   return getNodeCssStyleWhiteSpace(node).startsWith("pre");
 }
 
-function isLeadingSpaceSensitiveNode(node, options) {
+function isLeadingSpaceSensitiveNode(node) {
   const isLeadingSpaceSensitive = _isLeadingSpaceSensitiveNode();
 
   if (
@@ -161,7 +161,7 @@ function isLeadingSpaceSensitiveNode(node, options) {
       !node.prev &&
       (node.parent.type === "root" ||
         (isPreLikeNode(node) && node.parent) ||
-        isScriptLikeTag(node.parent, options) ||
+        isScriptLikeTag(node.parent) ||
         !isFirstChildLeadingSpaceSensitiveCssDisplay(node.parent.cssDisplay))
     ) {
       return false;
@@ -178,7 +178,7 @@ function isLeadingSpaceSensitiveNode(node, options) {
   }
 }
 
-function isTrailingSpaceSensitiveNode(node, options) {
+function isTrailingSpaceSensitiveNode(node) {
   if (isFrontMatter(node)) {
     return false;
   }
@@ -203,7 +203,7 @@ function isTrailingSpaceSensitiveNode(node, options) {
     !node.next &&
     (node.parent.type === "root" ||
       (isPreLikeNode(node) && node.parent) ||
-      isScriptLikeTag(node.parent, options) ||
+      isScriptLikeTag(node.parent) ||
       !isLastChildTrailingSpaceSensitiveCssDisplay(node.parent.cssDisplay))
   ) {
     return false;
@@ -219,10 +219,10 @@ function isTrailingSpaceSensitiveNode(node, options) {
   return true;
 }
 
-function isDanglingSpaceSensitiveNode(node, options) {
+function isDanglingSpaceSensitiveNode(node) {
   return (
     isDanglingSpaceSensitiveCssDisplay(node.cssDisplay) &&
-    !isScriptLikeTag(node, options)
+    !isScriptLikeTag(node)
   );
 }
 

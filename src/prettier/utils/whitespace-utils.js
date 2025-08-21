@@ -6,11 +6,12 @@ class WhitespaceUtils {
   constructor(whitespaceCharacters) {
     this.#whitespaceCharacters = new Set(whitespaceCharacters);
 
-    if (this.#whitespaceCharacters.size === 0 ||
-        Array.prototype.some.call(
-          whitespaceCharacters,
-          (character) => !/^\s$/u.test(character),
-        )
+    if (
+      this.#whitespaceCharacters.size === 0 ||
+      Array.prototype.some.call(
+        whitespaceCharacters,
+        (character) => !/^\s$/u.test(character),
+      )
     ) {
       throw new TypeError(
         `Invalid characters: ${JSON.stringify(whitespaceCharacters)}`,

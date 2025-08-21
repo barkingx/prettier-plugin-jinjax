@@ -27,7 +27,7 @@ function embed(path, options) {
 
   switch (node.type) {
     case "element":
-      if (isScriptLikeTag(node, options) || node.type === "interpolation") {
+      if (isScriptLikeTag(node) || node.type === "interpolation") {
         // Fall through to "text"
         return;
       }
@@ -51,7 +51,7 @@ function embed(path, options) {
           }
 
           return [
-            printOpeningTagPrefix(node, options),
+            printOpeningTagPrefix(node),
             group(printOpeningTag(path, options, print)),
             isEmpty ? "" : hardline,
             doc,
@@ -64,7 +64,7 @@ function embed(path, options) {
       break;
 
     case "text":
-      if (isScriptLikeTag(node.parent, options)) {
+      if (isScriptLikeTag(node.parent)) {
         const parser = inferElementParser(node.parent, options);
         if (parser) {
           return async (textToDoc) => {
@@ -90,7 +90,7 @@ function embed(path, options) {
 
             return [
               breakParent,
-              printOpeningTagPrefix(node, options),
+              printOpeningTagPrefix(node),
               await textToDoc(value, textToDocOptions),
               printClosingTagSuffix(node, options),
             ];
