@@ -1,6 +1,5 @@
 import { group } from "../../document/builders.js";
 import { mapDoc } from "../../document/utils.js";
-import printAngularAttribute from "./angular-attributes.js";
 import printClassNames from "./class-names.js";
 import printSrcset from "./srcset.js";
 import { printStyleAttribute } from "./style.js";
@@ -21,7 +20,6 @@ function printAttribute(path, options) {
     printSrcset,
     printStyleAttribute,
     printClassNames,
-    printAngularAttribute,
   ]) {
     const printValue = getValuePrinter(path, options);
     if (printValue) {

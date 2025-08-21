@@ -6,9 +6,7 @@ import {
   line,
 } from "../document/builders.js";
 import printFrontMatter from "../utils/front-matter/print.js";
-import printAngularControlFlowBlockParameters from "./embed/angular-control-flow-block-parameters.js";
 import printAttribute from "./embed/attribute.js";
-import { formatAttributeValue } from "./embed/utils.js";
 import getNodeContent from "./get-node-content.js";
 import {
   needsToBorrowPrevClosingTagEndMarker,
@@ -24,13 +22,6 @@ import {
   isScriptLikeTag,
 } from "./utils/index.js";
 
-const embeddedAngularControlFlowBlocks = new Set([
-  "if",
-  "else if",
-  "for",
-  "switch",
-  "case",
-]);
 
 function embed(path, options) {
   const { node } = path;
@@ -109,14 +100,10 @@ function embed(path, options) {
       } else if (node.parent.type === "interpolation") {
         return async (textToDoc) => {
           const textToDocOptions = {
+            parser: "__js_expression",
             __isInHtmlInterpolation: true, // to avoid unexpected `}}`
             __embeddedInHtml: true,
           };
-          if (options.parser === "angular") {
-            textToDocOptions.parser = "__ng_interpolation";
-          } else {
-            textToDocOptions.parser = "__js_expression";
-          }
 
           return [
             indent([line, await textToDoc(node.value, textToDocOptions)]),
@@ -134,20 +121,6 @@ function embed(path, options) {
 
     case "front-matter":
       return (textToDoc) => printFrontMatter(node, textToDoc);
-
-    case "angularControlFlowBlockParameters":
-      if (!embeddedAngularControlFlowBlocks.has(path.parent.name)) {
-        return;
-      }
-
-      return printAngularControlFlowBlockParameters;
-
-    case "angularLetDeclarationInitializer":
-      return (textToDoc) =>
-        formatAttributeValue(node.value, textToDoc, {
-          parser: "__ng_binding",
-          __isInHtmlAttribute: false,
-        });
   }
 }
 

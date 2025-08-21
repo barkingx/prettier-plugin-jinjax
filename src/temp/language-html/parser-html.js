@@ -27,7 +27,7 @@ import isUnknownNamespace from "./utils/is-unknown-namespace.js";
 
 /**
  * @typedef {AngularHtmlParserParseOptions & {
- *   name: 'html' | 'angular';
+ *   name: 'html';
  *   normalizeTagName?: boolean;
  *   normalizeAttributeName?: boolean;
  *   shouldParseAsRawText?: (tagName: string, prefix: string, hasParent: boolean, attrs: Array<{
@@ -119,8 +119,8 @@ function ngHtmlParser(input, parseOptions, options) {
       ? (...args) =>
           shouldParseAsRawText(...args) ? TagContentType.RAW_TEXT : undefined
       : undefined,
-    tokenizeAngularBlocks: name === "angular" ? true : undefined,
-    tokenizeAngularLetDeclaration: name === "angular" ? true : undefined,
+    tokenizeAngularBlocks: undefined,
+    tokenizeAngularLetDeclaration: undefined,
   });
 
   if (errors.length > 0) {
@@ -243,16 +243,6 @@ function ngHtmlParser(input, parseOptions, options) {
 
   visitAll(
     new (class extends RecursiveVisitor {
-      // Angular does not visit to the children of expansionCase
-      // https://github.com/angular/angular/blob/e3a6bf9b6c3bef03df9bfc8f05b817bc875cbad6/packages/compiler/src/ml_parser/ast.ts#L161
-      visitExpansionCase(ast, context) {
-        if (name === "angular") {
-          // @ts-expect-error
-          this.visitChildren(context, (visit) => {
-            visit(ast.expression);
-          });
-        }
-      }
       visit(node) {
         restoreNameAndValue(node);
         addTagDefinition(node);
@@ -388,6 +378,3 @@ const HTML_PARSE_OPTIONS = {
 
 // HTML
 export const html = createParser({...HTML_PARSE_OPTIONS, normalizeTagName: false});
-
-// Angular
-export const angular = createParser({ name: "angular" });
