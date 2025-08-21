@@ -17,6 +17,7 @@
   "packageManager": "pnpm@10.14.0",
   "devDependencies": {
     "@eslint/js": "^9.33.0",
+    "@prettier/parse-srcset": "3.1.0",
     "eslint": "^9.33.0",
     "eslint-config-prettier": "^10.1.8",
     "pnpm": "^10.14.0",
