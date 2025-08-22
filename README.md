@@ -1,6 +1,6 @@
 # prettier-plugin-jinjax
 
-`prettier-plugin-jinjax` is a [prettier](https://prettier.io/) plugin for correctly formatting `.html` and `.jinja` files containing **JinjaX** components.
+`prettier-plugin-jinjax` is a [prettier](https://prettier.io/) plugin for correctly formatting `.html` and `.jinja` files containing [JinjaX](https://jinjax.scaletti.dev/) components.
 
 > [!IMPORTANT]
 > This plugin is a modified version of **[prettier 3.6.2](https://github.com/prettier/prettier/releases/tag/3.6.2)**.
