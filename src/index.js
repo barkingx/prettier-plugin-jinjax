@@ -9,8 +9,8 @@ export default {
     {
       name: "JinjaX",
       parsers: [PLUGIN_KEY],
-      extensions: [".html", ".jinja"],
-      vscodeLanguageIds: ["html", "jinja"],
+      extensions: [".html"],
+      vscodeLanguageIds: ["html"],
     },
   ],
   parsers: { [PLUGIN_KEY]: prettierHtmlParser },
