@@ -2,36 +2,43 @@
   "name": "prettier-plugin-jinjax",
   "version": "1.0.0",
   "description": "JinjaX plugin for prettier",
-  "main": "src/index.js",
-  "type": "module",
   "author": "barkingx",
   "license": "MIT",
   "keywords": [
     "prettier",
-    "jinjax"
+    "jinjax",
+    "html"
   ],
+  "main": "src/index.js",
+  "type": "module",
+  "files": [
+    "src"
+  ],
+  "homepage": "https://github.com/barkingx/prettier-plugin-jinjax#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/barkingx/prettier-plugin-jinjax.git"
+  },
+  "packageManager": "pnpm@10.15.0",
   "scripts": {
     "lint:fix": "pnpm dlx eslint --fix",
     "debug": "prettier --plugin=./src/index.js ./test/index.html --write"
-  },
-  "packageManager": "pnpm@10.14.0",
-  "devDependencies": {
-    "@eslint/js": "^9.33.0",
-    "@prettier/parse-srcset": "3.1.0",
-    "eslint": "^9.33.0",
-    "eslint-config-prettier": "^10.1.8",
-    "pnpm": "^10.14.0",
-    "prettier": "^3.6.2"
-  },
-  "peerDependencies": {
-    "prettier": "^3.6.2"
   },
   "dependencies": {
     "angular-html-parser": "8.1.0",
     "escape-string-regexp": "5.0.0",
     "html-ua-styles": "0.0.9",
-    "n-readlines": "1.0.1",
     "to-fast-properties": "4.0.0",
     "trim-newlines": "5.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "pnpm": "^10.15.0",
+    "prettier": "^3.6.2"
+  },
+  "peerDependencies": {
+    "prettier": "^3.6.2"
   }
 }
