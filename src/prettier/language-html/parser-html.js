@@ -145,33 +145,7 @@ function parse(text, options = {}, shouldParseFrontMatter = true) {
     rawAst.children.unshift(frontMatter);
   }
 
-  const ast = new Node(rawAst);
-
-  // eslint-disable-next-line no-unused-vars
-  const parseSubHtml = (subContent, startSpan) => {
-    const { offset } = startSpan;
-    const fakeContent = text.slice(0, offset).replaceAll(/[^\n\r]/gu, " ");
-    const subAst = parse(fakeContent + subContent, options, false);
-    subAst.sourceSpan = new ParseSourceSpan(
-      startSpan,
-      subAst.children.at(-1).sourceSpan.end,
-    );
-
-    const firstText = subAst.children[0];
-    if (firstText.length === offset) {
-      /* c8 ignore next */
-      subAst.children.shift();
-    } else {
-      firstText.sourceSpan = new ParseSourceSpan(
-        firstText.sourceSpan.start.moveBy(offset),
-        firstText.sourceSpan.end,
-      );
-      firstText.value = firstText.value.slice(offset);
-    }
-    return subAst;
-  };
-
-  return ast;
+  return new Node(rawAst);
 }
 
 export const html = {
