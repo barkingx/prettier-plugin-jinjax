@@ -22,7 +22,11 @@
   "packageManager": "pnpm@10.15.0",
   "scripts": {
     "lint:fix": "pnpm dlx eslint --fix",
-    "debug": "prettier --plugin=./src/index.js ./test/index.html --write"
+    "debug": "prettier --plugin=./src/index.js ./test/input.html > ./test/actual.html",
+    "debug:compare": "cd test && fc actual.html expected.html",
+    "debug:clean": "cd test && del actual.html",
+    "test": "pnpm debug && pnpm debug:compare && pnpm debug:clean || (pnpm debug:clean && exit 1)",
+    "prepublishOnly": "pnpm test"
   },
   "dependencies": {
     "angular-html-parser": "8.1.0",
