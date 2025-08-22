@@ -1,4 +1,4 @@
-import {html as prettierHtmlParser} from "./prettier/language-html/parser-html.js";
+import { html as prettierHtmlParser } from "./prettier/language-html/parser-html.js";
 import prettierHtmlPrinter from "./prettier/language-html/printer-html.js";
 import prettierHtmlOptions from "./prettier/language-html/options.js";
 
@@ -13,7 +13,7 @@ export default {
       vscodeLanguageIds: ["html", "jinja"],
     },
   ],
-  parsers: {[PLUGIN_KEY]: prettierHtmlParser,},
+  parsers: { [PLUGIN_KEY]: prettierHtmlParser },
   printers: { [prettierHtmlParser.astFormat]: prettierHtmlPrinter },
   options: prettierHtmlOptions,
 };
