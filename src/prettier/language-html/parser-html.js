@@ -147,6 +147,7 @@ function parse(text, options = {}, shouldParseFrontMatter = true) {
 
   const ast = new Node(rawAst);
 
+  // eslint-disable-next-line no-unused-vars
   const parseSubHtml = (subContent, startSpan) => {
     const { offset } = startSpan;
     const fakeContent = text.slice(0, offset).replaceAll(/[^\n\r]/gu, " ");
