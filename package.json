@@ -1,6 +1,6 @@
 {
   "name": "prettier-plugin-jinjax",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "JinjaX plugin for prettier",
   "author": "barkingx",
   "license": "MIT",
