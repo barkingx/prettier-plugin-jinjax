@@ -21,6 +21,7 @@
   },
   "packageManager": "pnpm@10.15.0",
   "scripts": {
+    "format:write": "prettier --write \"./!(test)/**/*\"",
     "lint:fix": "pnpm dlx eslint --fix",
     "debug": "prettier --plugin=./src/index.js ./test/input.html > ./test/actual.html",
     "debug:compare": "cd test && fc actual.html expected.html",
